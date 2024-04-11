@@ -5,6 +5,8 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JTaskBar", "JTaskBar\JTaskBar.csproj", "{215989D6-0E7E-48D5-8E16-D8E2AD943691}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JClock", "JClock\JClock.csproj", "{298C539F-17E9-4BAE-B004-EC300531B9E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{215989D6-0E7E-48D5-8E16-D8E2AD943691}.Debug|Any CPU.Build.0 = Debug|x64
 		{215989D6-0E7E-48D5-8E16-D8E2AD943691}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{215989D6-0E7E-48D5-8E16-D8E2AD943691}.Release|Any CPU.Build.0 = Release|Any CPU
+		{298C539F-17E9-4BAE-B004-EC300531B9E9}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{298C539F-17E9-4BAE-B004-EC300531B9E9}.Debug|Any CPU.Build.0 = Debug|x64
+		{298C539F-17E9-4BAE-B004-EC300531B9E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{298C539F-17E9-4BAE-B004-EC300531B9E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
