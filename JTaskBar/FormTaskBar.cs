@@ -26,15 +26,23 @@ using System.Windows.Forms;
 
 namespace JTaskBar
 {
-    public partial class Form1 : Form
+    public partial class FormTaskBar : Form
     {
-        public Form1()
+        public FormTaskBar()
         {
             InitializeComponent();
+
+            icons.ImageSize = new Size(16, 16);
+            LiVw_Apps.SmallImageList = icons;
+
+            LiVw_Apps.Columns.Add("Window", 200);//todo: set to dynamic value based on how wide the form is.
+
         }
 
         public BackgroundWorker ClockWorker { get; set; } = new BackgroundWorker();
         public List<WindowInfo> WinItems { get; private set; } = new List<WindowInfo>();
+
+        public ImageList icons { get; private set; } = new ImageList();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -49,41 +57,112 @@ namespace JTaskBar
 
         private void SetButtons()
         {
-            LiBx_Apps.Items.Clear();
-            WinItems.Clear();
+            var currentWindows = OpenWindowGetter.GetOpenWindows();
+            var existingHandles = new HashSet<IntPtr>(WinItems.Select(w => w.Handle));
+            var newHandles = new HashSet<IntPtr>(currentWindows.Select(w => w.Handle));
 
-            foreach (var window in OpenWindowGetter.GetOpenWindows())
+            // Update or add new items
+            foreach (var window in currentWindows)
             {
-                LiBx_Apps.Items.Add(window.Title);
-                WinItems.Add(window);
+                var existingItem = LiVw_Apps.Items
+                    .Cast<ListViewItem>()
+                    .FirstOrDefault(i => i.Tag is WindowInfo info && info.Handle == window.Handle);
+
+                if (existingItem != null)
+                {
+                    // Update if title or process name changed
+#pragma warning disable CS8600, CS8602
+                    WindowInfo existingInfo = (WindowInfo)existingItem.Tag;
+
+                    if (existingInfo.Title != window.Title || existingInfo.ProcessName != window.ProcessName)
+                    {
+                        existingItem.Text = window.Title;
+                        existingItem.Tag = window;
+                    }
+#pragma warning restore CS8600, CS8602
+                }
+                else
+                {
+                    var item = new ListViewItem(window.Title)
+                    {
+                        //ImageIndex = iconIndex,
+                        Tag = window
+                    };
+                    LiVw_Apps.Items.Add(item);
+                }
             }
+
+            // Remove closed windows
+            for (int i = LiVw_Apps.Items.Count - 1; i >= 0; i--)
+            {
+                var item = LiVw_Apps.Items[i];
+                if (item.Tag is WindowInfo info && !newHandles.Contains(info.Handle))
+                {
+                    LiVw_Apps.Items.RemoveAt(i);
+                }
+            }
+
+            // Update WinItems cache
+            WinItems = currentWindows;
         }
 
-        private void LiBx_Apps_SelectedIndexChanged(object sender, EventArgs e)
+
+
+        private void LiVw_Apps_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (LiBx_Apps.SelectedIndex > -1)
+            if (LiVw_Apps.SelectedItems.Count == 0)
             {
-                var selectedWindow = WinItems[LiBx_Apps.SelectedIndex];
+                return;
+            }
+
+            var selectedItem = LiVw_Apps.SelectedItems[0];
+
+            if (selectedItem.Tag is WindowInfo selectedWindow)
+            {
                 ShowWindow(selectedWindow.Handle, SW_RESTORE);
                 SetForegroundWindow(selectedWindow.Handle);
             }
         }
 
-        private void LiBx_Apps_MouseMove(object sender, MouseEventArgs e)
+
+        private ListViewItem? lastTooltipItem = null;
+
+        private void LiVw_Apps_MouseMove(object sender, MouseEventArgs e)
         {
-            ShowItemData(e.Location);
+            var item = LiVw_Apps.GetItemAt(e.X, e.Y);
+
+            if (item == null || item == lastTooltipItem)
+            {
+                return;
+            }
+
+            lastTooltipItem = item;
+
+            if (item.Tag is WindowInfo info)
+            {
+                string tooltip = $"{info.Title}\n{info.ProcessName}\nParent: {info.ParentHandle}";
+                TT_Win.Show(tooltip, this, new Point(e.X + 8, e.Y + 15), 2000);
+            }
         }
 
-        void ShowItemData(Point pt)
-        {
-            Point point = LiBx_Apps.PointToClient(Cursor.Position);
-            int index = LiBx_Apps.IndexFromPoint(point);
-            if (index <= 0) { return; }
 
-            var info = WinItems[index];
-            string tooltip = $"{info.Title}\n{info.ProcessName}\nParent: {info.ParentHandle}";
-            TT_Win.Show(tooltip, this, new Point(pt.X + 8, pt.Y + 15), 2000);
+        private void ShowItemData(Point pt)
+        {
+            Point point = LiVw_Apps.PointToClient(Cursor.Position);
+            ListViewItem? item = LiVw_Apps.GetItemAt(point.X, point.Y);
+
+            if (item == null)
+            {
+                return;
+            }
+
+            if (item.Tag is WindowInfo info)
+            {
+                string tooltip = $"{info.Title}\n{info.ProcessName}\nParent: {info.ParentHandle}";
+                TT_Win.Show(tooltip, this, new Point(pt.X + 8, pt.Y + 15), 2000);
+            }
         }
+
 
         private void Btn_Menu_Click(object sender, EventArgs e)
         {
@@ -131,5 +210,8 @@ namespace JTaskBar
 
             ShowWindow(hWnd, SW_RESTORE);
         }
+
+
+
     }
 }
