@@ -136,5 +136,37 @@ namespace JTaskBar
                 SetForegroundWindow(objProcesses[0].MainWindowHandle);
             }
         }
+
+        [DllImport("user32.dll")]
+        static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll")]
+        static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+
+
+        public static void ForceFocus(IntPtr hWnd)
+        {
+            uint foreThread = GetWindowThreadProcessId(GetForegroundWindow(), out _);
+            uint appThread = GetCurrentThreadId();
+
+            if (foreThread != appThread)
+            {
+                AttachThreadInput(foreThread, appThread, true);
+                SetForegroundWindow(hWnd);
+                AttachThreadInput(foreThread, appThread, false);
+            }
+            else
+            {
+                SetForegroundWindow(hWnd);
+            }
+
+            ShowWindow(hWnd, SW_RESTORE);
+        }
+
     }
 }

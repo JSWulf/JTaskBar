@@ -89,4 +89,5 @@ namespace JTaskBar
         [DllImport("USER32.DLL")]
         private static extern IntPtr GetShellWindow();
     }
+
 }
