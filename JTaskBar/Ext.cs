@@ -18,12 +18,10 @@
 \*==================================================================================================================================================*/
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using HWND = System.IntPtr;
 
 namespace JTaskBar
 {
@@ -33,9 +31,7 @@ namespace JTaskBar
         {
             int wk = dt.GetIso8601WeekOfYear();
             string wks = (wk < 10) ? "0" + wk : wk.ToString();
-
             var y = dt.Year;
-
             if (wk == 1 && dt.Day > 20)
             {
                 y++;
@@ -44,68 +40,75 @@ namespace JTaskBar
             {
                 y = (dt.AddDays(-10)).Year;
             }
-
-            return y + "/" + wks;
+            return $"{y}/{wks}";
         }
+
         public static int GetIso8601WeekOfYear(this DateTime time)
         {
-            // Use Thursday/Friday/Saturday to get the week.
             DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
             if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
-            {
-                time = time.AddDays(3);
+            { 
+                time = time.AddDays(3); 
             }
-            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(
+                time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
         }
     }
 
-
-
-    /// <summary>Contains functionality to get all the open windows.</summary>
     public static class OpenWindowGetter
     {
-        /// <summary>Returns a dictionary that contains the handle and title of all the open windows.</summary>
-        /// <returns>A dictionary that contains the handle and title of all the open windows.</returns>
-        public static IDictionary<HWND, string> GetOpenWindows()
+        public static List<WindowInfo> GetOpenWindows()
         {
-            HWND shellWindow = GetShellWindow();
-            Dictionary<HWND, string> windows = new Dictionary<HWND, string>();
+            IntPtr shellWindow = GetShellWindow();
+            List<WindowInfo> windows = new();
 
-            EnumWindows(delegate (HWND hWnd, int lParam)
+            EnumWindows(delegate (IntPtr hWnd, int lParam)
             {
-                if (hWnd == shellWindow) return true;
-                if (!IsWindowVisible(hWnd)) return true;
+                if (hWnd == shellWindow || !IsWindowVisible(hWnd)) { return true; }
 
                 int length = GetWindowTextLength(hWnd);
-                if (length == 0) return true;
+                if (length == 0) { return true; }
 
-                StringBuilder builder = new StringBuilder(length);
-                GetWindowText(hWnd, builder, length + 1);
+                StringBuilder builder = new(length + 1);
+                GetWindowText(hWnd, builder, builder.Capacity);
 
-                windows[hWnd] = builder.ToString();
+                GetWindowThreadProcessId(hWnd, out uint pid);
+                string processName = string.Empty;
+                try
+                {
+                    processName = Process.GetProcessById((int)pid).ProcessName;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    //debug log here.
+                }
+
+                IntPtr parent = GetParent(hWnd);
+
+                windows.Add(new WindowInfo
+                {
+                    Handle = hWnd,
+                    Title = builder.ToString(),
+                    ProcessName = processName,
+                    ParentHandle = parent,
+                    IconPath = null // Placeholder for future icon support
+                });
+
                 return true;
-
             }, 0);
 
             return windows;
         }
 
-        private delegate bool EnumWindowsProc(HWND hWnd, int lParam);
+        private delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
-        [DllImport("USER32.DLL")]
-        private static extern bool EnumWindows(EnumWindowsProc enumFunc, int lParam);
-
-        [DllImport("USER32.DLL")]
-        private static extern int GetWindowText(HWND hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("USER32.DLL")]
-        private static extern int GetWindowTextLength(HWND hWnd);
-
-        [DllImport("USER32.DLL")]
-        private static extern bool IsWindowVisible(HWND hWnd);
-
-        [DllImport("USER32.DLL")]
-        private static extern IntPtr GetShellWindow();
+        [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowsProc enumFunc, int lParam);
+        [DllImport("user32.dll")] private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+        [DllImport("user32.dll")] private static extern int GetWindowTextLength(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern IntPtr GetShellWindow();
+        [DllImport("user32.dll")] private static extern IntPtr GetParent(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
     }
-
 }
