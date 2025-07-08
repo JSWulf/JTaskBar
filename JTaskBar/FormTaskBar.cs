@@ -37,6 +37,7 @@ namespace JTaskBar
 
             LiVw_Apps.Columns.Add("Window", 200);//todo: set to dynamic value based on how wide the form is.
 
+            this.TopMost = true;
         }
 
         public BackgroundWorker ClockWorker { get; set; } = new BackgroundWorker();
@@ -44,10 +45,26 @@ namespace JTaskBar
 
         public ImageList icons { get; private set; } = new ImageList();
 
-        private void Form1_Load(object sender, EventArgs e)
+        
+
+        private void FormTaskBar_Load(object sender, EventArgs e)
         {
+            RegisterAppBar();
             Timer_Clock.Start();
         }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            APPBARDATA abd = new APPBARDATA
+            {
+                cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
+                hWnd = this.Handle
+            };
+            Win.SHAppBarMessage(ABM_REMOVE, ref abd);
+
+            base.OnFormClosing(e);
+        }
+
 
         private void Timer_Clock_Tick(object sender, EventArgs e)
         {
@@ -119,8 +136,8 @@ namespace JTaskBar
 
             if (selectedItem.Tag is WindowInfo selectedWindow)
             {
-                ShowWindow(selectedWindow.Handle, SW_RESTORE);
-                SetForegroundWindow(selectedWindow.Handle);
+                Win.ShowWindow(selectedWindow.Handle, Win.SW_RESTORE);
+                Win.SetForegroundWindow(selectedWindow.Handle);
             }
         }
 
@@ -180,37 +197,47 @@ namespace JTaskBar
             Close();
         }
 
-        // Focus helpers
-        [DllImport("user32.dll")] public static extern bool ShowWindowAsync(HandleRef hWnd, int nCmdShow);
-        [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr WindowHandle);
-        [DllImport("User32.dll")] private static extern bool ShowWindow(IntPtr handle, int nCmdShow);
-        [DllImport("User32.dll")] private static extern bool IsIconic(IntPtr handle);
-        [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-        [DllImport("user32.dll")] static extern uint GetCurrentThreadId();
-        [DllImport("user32.dll")] static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-        [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
-
-        const int SW_RESTORE = 9;
-
-        public static void ForceFocus(IntPtr hWnd)
+        [StructLayout(LayoutKind.Sequential)]
+        public struct APPBARDATA
         {
-            uint foreThread = GetWindowThreadProcessId(GetForegroundWindow(), out _);
-            uint appThread = GetCurrentThreadId();
-
-            if (foreThread != appThread)
-            {
-                AttachThreadInput(foreThread, appThread, true);
-                SetForegroundWindow(hWnd);
-                AttachThreadInput(foreThread, appThread, false);
-            }
-            else
-            {
-                SetForegroundWindow(hWnd);
-            }
-
-            ShowWindow(hWnd, SW_RESTORE);
+            public uint cbSize;
+            public IntPtr hWnd;
+            public uint uCallbackMessage;
+            public uint uEdge;
+            public RECT rc;
+            public int lParam;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int left, top, right, bottom;
+        }
+
+        const int ABM_NEW = 0x00000000;
+        const int ABM_REMOVE = 0x00000001;
+        const int ABM_SETPOS = 0x00000003;
+        const int ABE_LEFT = 0;
+
+        private void RegisterAppBar()
+        {
+            APPBARDATA abd = new APPBARDATA();
+            abd.cbSize = (uint)Marshal.SizeOf(abd);
+            abd.hWnd = this.Handle;
+            abd.uEdge = ABE_LEFT;
+
+            Rectangle screen = Screen.PrimaryScreen.WorkingArea;
+            abd.rc.top = screen.Top;
+            abd.rc.bottom = screen.Bottom;
+            abd.rc.left = screen.Left;
+            abd.rc.right = screen.Left + this.Width;
+
+            Win.SHAppBarMessage(ABM_NEW, ref abd);
+            Win.SHAppBarMessage(ABM_SETPOS, ref abd);
+
+            this.Location = new Point(abd.rc.left, abd.rc.top);
+            this.Size = new Size(abd.rc.right - abd.rc.left, abd.rc.bottom - abd.rc.top);
+        }
 
 
     }

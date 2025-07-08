@@ -198,7 +198,7 @@ namespace JTaskBar
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.Manual;
             TopMost = true;
-            Load += Form1_Load;
+            Load += FormTaskBar_Load;
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             Menu_Main.ResumeLayout(false);

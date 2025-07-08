@@ -22,39 +22,76 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
-using static JTaskBar.FormTaskBar;
 
 namespace JTaskBar
 {
-    public static class Ext
+    public static class OpenWindowGetter
     {
-        public static string ISOWorkWeek(this DateTime dt)
+        public static List<WindowInfo> GetOpenWindows()
         {
-            int wk = dt.GetIso8601WeekOfYear();
-            string wks = (wk < 10) ? "0" + wk : wk.ToString();
-            var y = dt.Year;
-            if (wk == 1 && dt.Day > 20)
+            IntPtr shellWindow = Win.GetShellWindow();
+            List<WindowInfo> windows = new();
+
+            Win.EnumWindows(delegate (IntPtr hWnd, int lParam)
             {
-                y++;
-            }
-            else if (wk > 51 && dt.Day < 10)
-            {
-                y = (dt.AddDays(-10)).Year;
-            }
-            return $"{y}/{wks}";
+                if (hWnd == shellWindow || !Win.IsWindowVisible(hWnd)) { return true; }
+
+                int length = Win.GetWindowTextLength(hWnd);
+                if (length == 0) { return true; }
+
+                StringBuilder builder = new(length + 1);
+                Win.GetWindowText(hWnd, builder, builder.Capacity);
+
+                Win.GetWindowThreadProcessId(hWnd, out uint pid);
+                string processName = string.Empty;
+                try
+                {
+                    processName = Process.GetProcessById((int)pid).ProcessName;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    //debug log here.
+                }
+
+                IntPtr parent = Win.GetParent(hWnd);
+
+                windows.Add(new WindowInfo
+                {
+                    Handle = hWnd,
+                    Title = builder.ToString(),
+                    ProcessName = processName,
+                    ParentHandle = parent,
+                    IconPath = null // Placeholder for future icon support
+                });
+
+                return true;
+            }, 0);
+
+            return windows;
         }
 
-        public static int GetIso8601WeekOfYear(this DateTime time)
+        
+
+        public static void ForceFocus(IntPtr hWnd)
         {
-            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
-            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
-            { 
-                time = time.AddDays(3); 
+            uint foreThread = Win.GetWindowThreadProcessId(Win.GetForegroundWindow(), out _);
+            uint appThread = Win.GetCurrentThreadId();
+
+            if (foreThread != appThread)
+            {
+                Win.AttachThreadInput(foreThread, appThread, true);
+                Win.SetForegroundWindow(hWnd);
+                Win.AttachThreadInput(foreThread, appThread, false);
             }
-            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(
-                time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            else
+            {
+                Win.SetForegroundWindow(hWnd);
+            }
+
+            Win.ShowWindow(hWnd, Win.SW_RESTORE);
+
         }
+
     }
-
-    
 }

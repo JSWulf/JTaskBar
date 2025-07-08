@@ -18,43 +18,36 @@
 \*==================================================================================================================================================*/
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using static JTaskBar.FormTaskBar;
 
 namespace JTaskBar
 {
-    public static class Ext
+    public static class Win
     {
-        public static string ISOWorkWeek(this DateTime dt)
-        {
-            int wk = dt.GetIso8601WeekOfYear();
-            string wks = (wk < 10) ? "0" + wk : wk.ToString();
-            var y = dt.Year;
-            if (wk == 1 && dt.Day > 20)
-            {
-                y++;
-            }
-            else if (wk > 51 && dt.Day < 10)
-            {
-                y = (dt.AddDays(-10)).Year;
-            }
-            return $"{y}/{wks}";
-        }
+        [DllImport("user32.dll")] public static extern bool EnumWindows(EnumWindowsProc enumFunc, int lParam);
+        [DllImport("user32.dll")] public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+        [DllImport("user32.dll")] public static extern int GetWindowTextLength(IntPtr hWnd);
+        [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hWnd);
+        [DllImport("user32.dll")] public static extern IntPtr GetShellWindow();
+        [DllImport("user32.dll")] public static extern IntPtr GetParent(IntPtr hWnd);
+        [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")] public static extern bool ShowWindowAsync(HandleRef hWnd, int nCmdShow);
+        [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr WindowHandle);
+        [DllImport("User32.dll")] public static extern bool ShowWindow(IntPtr handle, int nCmdShow);
+        [DllImport("User32.dll")] public static extern bool IsIconic(IntPtr handle);
 
-        public static int GetIso8601WeekOfYear(this DateTime time)
-        {
-            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
-            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
-            { 
-                time = time.AddDays(3); 
-            }
-            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(
-                time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-        }
+        [DllImport("user32.dll")] public static extern uint GetCurrentThreadId();
+        [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        [DllImport("shell32.dll")] public static extern uint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
+
+        public delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
+
+        public const int SW_RESTORE = 9;
     }
-
-    
 }
