@@ -23,6 +23,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using static JTaskBar.AppBar;
+using static JTaskBar.Win;
 
 namespace JTaskBar
 {
@@ -32,10 +34,15 @@ namespace JTaskBar
         {
             InitializeComponent();
 
+            TT_Win.InitialDelay = 2000;
+            TT_Win.ReshowDelay = 500;
+            TT_Win.AutoPopDelay = 5000;
+            TT_Win.ShowAlways = false;
+
             icons.ImageSize = new Size(16, 16);
             LiVw_Apps.SmallImageList = icons;
 
-            LiVw_Apps.Columns.Add("Window", 200);//todo: set to dynamic value based on how wide the form is.
+            LiVw_Apps.Columns.Add("Window", this.Width - 18);//todo: set to dynamic value based on how wide the form is.
 
             this.TopMost = true;
         }
@@ -45,11 +52,34 @@ namespace JTaskBar
 
         public ImageList icons { get; private set; } = new ImageList();
 
-        
+        private int barWidth = 101;
+
+        public int BarWidth
+        {
+            get { return barWidth; }
+            set { 
+                barWidth = value;
+                this.Width = value;
+                LiVw_Apps.Columns[Window.Name].Width = this.Width - 18;
+                UpdateAppBarPosition(this, DockSide, barWidth);
+            }
+        }
+
+        private uint dockSide = ABE_LEFT;
+
+        public uint DockSide
+        {
+            get { return dockSide; }
+            set { 
+                dockSide = value;
+                UpdateAppBarPosition(this, dockSide, BarWidth);
+            }
+        }
 
         private void FormTaskBar_Load(object sender, EventArgs e)
         {
-            RegisterAppBar();
+            //RegisterAppBar();
+            UpdateAppBarPosition(this, DockSide, BarWidth);
             Timer_Clock.Start();
         }
 
@@ -123,7 +153,8 @@ namespace JTaskBar
             WinItems = currentWindows;
         }
 
-
+        //store last click for minimize on click again.
+        private IntPtr? lastFocusedHandle = null;
 
         private void LiVw_Apps_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -136,11 +167,44 @@ namespace JTaskBar
 
             if (selectedItem.Tag is WindowInfo selectedWindow)
             {
-                Win.ShowWindow(selectedWindow.Handle, Win.SW_RESTORE);
-                Win.SetForegroundWindow(selectedWindow.Handle);
+                
+
+                if (selectedWindow.Handle == Win.GetForegroundWindow())
+                {
+                    Win.ShowWindow(selectedWindow.Handle, Win.SW_MINIMIZE);
+                }
+                else
+                {
+                    OpenWindowGetter.ForceFocus(selectedWindow.Handle);
+                    lastFocusedHandle = selectedWindow.Handle;
+
+                    //if ForceFocus fails:
+                    //Win.ShowWindow(selectedWindow.Handle, Win.SW_RESTORE);
+                    //Win.SetForegroundWindow(selectedWindow.Handle);
+                }
             }
+
         }
 
+        private void LiVw_Apps_MouseDown(object sender, MouseEventArgs e)
+        {
+            var item = LiVw_Apps.GetItemAt(e.X, e.Y);
+            if (item == null || item.Tag is not WindowInfo selectedWindow)
+            {
+                return;
+            }
+
+            if (lastFocusedHandle.HasValue && selectedWindow.Handle == lastFocusedHandle.Value)
+            {
+                Win.ShowWindow(selectedWindow.Handle, Win.SW_MINIMIZE);
+                lastFocusedHandle = IntPtr.Zero; // Reset to avoid double-minimize
+            }
+            else
+            {
+                OpenWindowGetter.ForceFocus(selectedWindow.Handle);
+                lastFocusedHandle = selectedWindow.Handle;
+            }
+        }
 
         private ListViewItem? lastTooltipItem = null;
 
@@ -157,8 +221,14 @@ namespace JTaskBar
 
             if (item.Tag is WindowInfo info)
             {
-                string tooltip = $"{info.Title}\n{info.ProcessName}\nParent: {info.ParentHandle}";
-                TT_Win.Show(tooltip, this, new Point(e.X + 8, e.Y + 15), 2000);
+                string tooltip = $"{info.Title}\n{info.ProcessName}";//\nParent: {info.ParentHandle}
+                
+                //TT_Win.Show(tooltip, this, new Point(e.X + 8, e.Y + 15), 2000);
+
+                Point screenPoint = LiVw_Apps.PointToScreen(new Point(e.X, e.Y));
+                screenPoint.Offset(12, 24);
+                TT_Win.Show(tooltip, this, screenPoint, 5000);
+
             }
         }
 
@@ -195,49 +265,37 @@ namespace JTaskBar
         {
             Application.Exit();
             Close();
+            var x = this;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct APPBARDATA
-        {
-            public uint cbSize;
-            public IntPtr hWnd;
-            public uint uCallbackMessage;
-            public uint uEdge;
-            public RECT rc;
-            public int lParam;
-        }
+        
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int left, top, right, bottom;
-        }
+        
 
-        const int ABM_NEW = 0x00000000;
-        const int ABM_REMOVE = 0x00000001;
-        const int ABM_SETPOS = 0x00000003;
-        const int ABE_LEFT = 0;
+        
 
-        private void RegisterAppBar()
-        {
-            APPBARDATA abd = new APPBARDATA();
-            abd.cbSize = (uint)Marshal.SizeOf(abd);
-            abd.hWnd = this.Handle;
-            abd.uEdge = ABE_LEFT;
+        //private void RegisterAppBar()
+        //{
+        //    APPBARDATA abd = new APPBARDATA();
+        //    abd.cbSize = (uint)Marshal.SizeOf(abd);
+        //    abd.hWnd = this.Handle;
+        //    abd.uEdge = DockSide;
 
-            Rectangle screen = Screen.PrimaryScreen.WorkingArea;
-            abd.rc.top = screen.Top;
-            abd.rc.bottom = screen.Bottom;
-            abd.rc.left = screen.Left;
-            abd.rc.right = screen.Left + this.Width;
+        //    Rectangle screen = Screen.PrimaryScreen.WorkingArea;
+        //    abd.rc.top = screen.Top;
+        //    abd.rc.bottom = screen.Bottom;
+        //    abd.rc.left = screen.Left;
+        //    abd.rc.right = screen.Left + this.Width;
 
-            Win.SHAppBarMessage(ABM_NEW, ref abd);
-            Win.SHAppBarMessage(ABM_SETPOS, ref abd);
+        //    Win.SHAppBarMessage(ABM_NEW, ref abd);
+        //    Win.SHAppBarMessage(ABM_SETPOS, ref abd);
 
-            this.Location = new Point(abd.rc.left, abd.rc.top);
-            this.Size = new Size(abd.rc.right - abd.rc.left, abd.rc.bottom - abd.rc.top);
-        }
+        //    this.Location = new Point(abd.rc.left, abd.rc.top);
+        //    this.Size = new Size(abd.rc.right - abd.rc.left, abd.rc.bottom - abd.rc.top);
+        //}
+
+        
+
 
 
     }

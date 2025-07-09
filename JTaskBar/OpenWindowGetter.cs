@@ -89,7 +89,12 @@ namespace JTaskBar
                 Win.SetForegroundWindow(hWnd);
             }
 
-            Win.ShowWindow(hWnd, Win.SW_RESTORE);
+
+            if (Win.IsIconic(hWnd))
+            {
+                Win.ShowWindow(hWnd, Win.SW_RESTORE);
+            }
+
 
         }
 

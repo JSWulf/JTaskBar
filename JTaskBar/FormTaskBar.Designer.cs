@@ -98,13 +98,13 @@ namespace JTaskBar
             tableLayoutPanel1.RowStyles.Add(new RowStyle());
             tableLayoutPanel1.RowStyles.Add(new RowStyle());
             tableLayoutPanel1.RowStyles.Add(new RowStyle());
-            tableLayoutPanel1.Size = new Size(92, 1156);
+            tableLayoutPanel1.Size = new Size(99, 1156);
             tableLayoutPanel1.TabIndex = 0;
             // 
             // Btn_Menu
             // 
             Btn_Menu.Anchor = AnchorStyles.Top;
-            Btn_Menu.Location = new Point(17, 3);
+            Btn_Menu.Location = new Point(21, 3);
             Btn_Menu.Margin = new Padding(4, 3, 4, 3);
             Btn_Menu.Name = "Btn_Menu";
             Btn_Menu.Size = new Size(57, 35);
@@ -119,7 +119,7 @@ namespace JTaskBar
             Btn_Desktop.Location = new Point(4, 1126);
             Btn_Desktop.Margin = new Padding(4, 3, 4, 3);
             Btn_Desktop.Name = "Btn_Desktop";
-            Btn_Desktop.Size = new Size(84, 27);
+            Btn_Desktop.Size = new Size(91, 27);
             Btn_Desktop.TabIndex = 1;
             Btn_Desktop.Text = "Desktop";
             Btn_Desktop.UseVisualStyleBackColor = true;
@@ -135,7 +135,7 @@ namespace JTaskBar
             Lab_Clock.Location = new Point(4, 1110);
             Lab_Clock.Margin = new Padding(4, 0, 4, 0);
             Lab_Clock.Name = "Lab_Clock";
-            Lab_Clock.Size = new Size(84, 13);
+            Lab_Clock.Size = new Size(91, 13);
             Lab_Clock.TabIndex = 2;
             Lab_Clock.Text = "Clock Text";
             Lab_Clock.TextAlign = ContentAlignment.BottomCenter;
@@ -145,6 +145,7 @@ namespace JTaskBar
             LiVw_Apps.BackColor = Color.Black;
             LiVw_Apps.BorderStyle = BorderStyle.None;
             LiVw_Apps.Columns.AddRange(new ColumnHeader[] { Window });
+            LiVw_Apps.Dock = DockStyle.Fill;
             LiVw_Apps.Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             LiVw_Apps.ForeColor = Color.White;
             LiVw_Apps.FullRowSelect = true;
@@ -153,11 +154,12 @@ namespace JTaskBar
             LiVw_Apps.Margin = new Padding(4, 3, 4, 3);
             LiVw_Apps.MultiSelect = false;
             LiVw_Apps.Name = "LiVw_Apps";
-            LiVw_Apps.Size = new Size(84, 987);
+            LiVw_Apps.Scrollable = false;
+            LiVw_Apps.Size = new Size(91, 1063);
             LiVw_Apps.TabIndex = 3;
             LiVw_Apps.UseCompatibleStateImageBehavior = false;
             LiVw_Apps.View = View.Details;
-            LiVw_Apps.SelectedIndexChanged += LiVw_Apps_SelectedIndexChanged;
+            LiVw_Apps.MouseDown += LiVw_Apps_MouseDown;
             LiVw_Apps.MouseMove += LiVw_Apps_MouseMove;
             // 
             // Window
@@ -188,7 +190,7 @@ namespace JTaskBar
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Black;
-            ClientSize = new Size(92, 1156);
+            ClientSize = new Size(99, 1156);
             ControlBox = false;
             Controls.Add(tableLayoutPanel1);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
