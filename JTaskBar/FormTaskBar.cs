@@ -261,7 +261,7 @@ namespace JTaskBar
 
             if (item.Tag is WindowInfo info)
             {
-                string tooltip = $"{info.Title}\n{info.ProcessName}\nParent: {info.ParentHandle}";
+                string tooltip = $"{info.ProcessName}\nParent: {info.ParentHandle}\n{info.Title}";
                 TT_Win.Show(tooltip, this, new Point(pt.X + 8, pt.Y + 15), 2000);
             }
         }
