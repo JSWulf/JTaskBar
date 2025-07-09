@@ -151,6 +151,20 @@ namespace JTaskBar
 
             // Update WinItems cache
             WinItems = currentWindows;
+
+            // Highlight the currently focused window
+            IntPtr foreground = Win.GetForegroundWindow();
+
+            foreach (ListViewItem item in LiVw_Apps.Items)
+            {
+                if (item.Tag is WindowInfo info && info.Handle == foreground)
+                {
+                    item.Selected = true;
+                    item.EnsureVisible(); // Optional: scroll into view
+                    break;
+                }
+            }
+
         }
 
         //store last click for minimize on click again.
@@ -204,6 +218,8 @@ namespace JTaskBar
                 OpenWindowGetter.ForceFocus(selectedWindow.Handle);
                 lastFocusedHandle = selectedWindow.Handle;
             }
+
+            LiVw_Apps.SelectedItems.Clear();
         }
 
         private ListViewItem? lastTooltipItem = null;

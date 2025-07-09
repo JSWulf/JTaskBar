@@ -40,16 +40,20 @@ namespace JTaskBar
         [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr WindowHandle);
         [DllImport("User32.dll")] public static extern bool ShowWindow(IntPtr handle, int nCmdShow);
         [DllImport("User32.dll")] public static extern bool IsIconic(IntPtr handle);
-
         [DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();
         [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-
         [DllImport("shell32.dll")] public static extern uint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
+        [DllImport("user32.dll")] public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
         public delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
         public const int SW_RESTORE = 9;
         public const int SW_MINIMIZE = 6;
+        public const int GWL_STYLE = -16;
+        public const int GWL_EXSTYLE = -20;
+        public const int WS_EX_TOOLWINDOW = 0x00000080;
+        public const int WS_CAPTION = 0x00C00000;
+        public const int WS_SYSMENU = 0x00080000;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
