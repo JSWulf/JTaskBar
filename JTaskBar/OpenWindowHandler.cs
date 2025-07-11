@@ -18,6 +18,7 @@
 \*==================================================================================================================================================*/
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
@@ -28,51 +29,81 @@ namespace JTaskBar
 {
     public static class OpenWindowHandler //OpenWindowGetter
     {
+
+        private static readonly HashSet<int> InaccessibleProcesses = new();
+
+
         public static List<WindowInfo> GetOpenWindows()
         {
-            IntPtr shellWindow = Win.GetShellWindow();
+            IntPtr shellWindow = GetShellWindow();
             List<WindowInfo> windows = new();
 
-            Win.EnumWindows(delegate (IntPtr hWnd, int lParam)
+            EnumWindows(delegate (IntPtr hWnd, int lParam)
             {
-                if (hWnd == shellWindow || !Win.IsWindowVisible(hWnd)) { return true; }
+                if (hWnd == shellWindow || !IsWindowVisible(hWnd)) { return true; }
 
-                int length = Win.GetWindowTextLength(hWnd);
+                int length = GetWindowTextLength(hWnd);
                 if (length == 0) { return true; }
 
-                if (hWnd == shellWindow || !Win.IsWindowVisible(hWnd)) { return true; }
-
                 //Exclude child windows
-                if (Win.GetParent(hWnd) != IntPtr.Zero) { return true; }
+                if (GetParent(hWnd) != IntPtr.Zero) { return true; }
 
                 //Exclude tool windows
                 int exStyle = Win.GetWindowLong(hWnd, Win.GWL_EXSTYLE);
                 if ((exStyle & Win.WS_EX_TOOLWINDOW) != 0) { return true; }
 
                 //Exclude windows without caption or system menu
-                int style = Win.GetWindowLong(hWnd, Win.GWL_STYLE);
+                int style = GetWindowLong(hWnd, Win.GWL_STYLE);
                 bool hasCaption = (style & Win.WS_CAPTION) != 0;
                 bool hasSysMenu = (style & Win.WS_SYSMENU) != 0;
                 if (!hasCaption && !hasSysMenu) { return true; }
 
 
                 StringBuilder builder = new(length + 1);
-                Win.GetWindowText(hWnd, builder, builder.Capacity);
+                GetWindowText(hWnd, builder, builder.Capacity);
 
-                Win.GetWindowThreadProcessId(hWnd, out uint pid);
+                GetWindowThreadProcessId(hWnd, out uint pid);
                 string processName = string.Empty;
                 try
                 {
-                    //processName = Process.GetProcessById((int)pid).ProcessName;
-                    var process = Process.GetProcessById((int)pid);
-                    string exePath = process.MainModule?.FileName ?? string.Empty;
-                    processName = FileVersionInfo.GetVersionInfo(exePath).FileDescription ?? process.ProcessName;
+                    if (!InaccessibleProcesses.Contains((int)pid))
+                    {
+                        var process = Process.GetProcessById((int)pid);
+
+                        string exePath = string.Empty;
+                        string description = process.ProcessName;
+
+                        //check if zombie window
+                        //if (string.Equals(description, "ApplicationFrameHost", StringComparison.OrdinalIgnoreCase) ||
+                        //    string.Equals(description, "ShellExperienceHost", StringComparison.OrdinalIgnoreCase) ||
+                        //    string.Equals(description, "SystemSettings", StringComparison.OrdinalIgnoreCase))
+                        //{
+                            
+                        //}
+
+                        try
+                        {
+                            exePath = process.MainModule?.FileName ?? string.Empty;
+                            if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+                            {
+                                description = FileVersionInfo.GetVersionInfo(exePath).FileDescription ?? process.ProcessName;
+                            }
+                        }
+                        catch (Win32Exception)
+                        {
+                            InaccessibleProcesses.Add((int)pid); // Cache failure
+                        }
+
+                        processName = description;
+
+                    }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine(ex.ToString());
-                    //debug log here.
+                    InaccessibleProcesses.Add((int)pid); // Cache if process is gone or inaccessible
                 }
+
+
 
                 IntPtr parent = Win.GetParent(hWnd);
 
@@ -82,7 +113,7 @@ namespace JTaskBar
                     Title = builder.ToString(),
                     ProcessName = processName,
                     ParentHandle = parent,
-                    IconPath = null //Placeholder for future icon support
+                    //IconPath = null //Placeholder for future icon support
                 });
 
                 return true;

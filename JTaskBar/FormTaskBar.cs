@@ -92,7 +92,7 @@ namespace JTaskBar
                 cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
                 hWnd = this.Handle
             };
-            Win.SHAppBarMessage(ABM_REMOVE, ref abd);
+            SHAppBarMessage(ABM_REMOVE, ref abd);
 
             base.OnFormClosing(e);
         }
@@ -403,7 +403,16 @@ namespace JTaskBar
             }
         }
 
+        private void reDrawToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            APPBARDATA abd = new APPBARDATA
+            {
+                cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
+                hWnd = this.Handle
+            };
+            SHAppBarMessage(ABM_REMOVE, ref abd);
 
-
+            UpdateAppBarPosition(this, DockSide, BarWidth);
+        }
     }
 }

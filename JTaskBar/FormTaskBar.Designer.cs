@@ -65,6 +65,7 @@ namespace JTaskBar
             MBtn_TskMn = new ToolStripMenuItem();
             toolStripMenuItem4 = new ToolStripSeparator();
             MBtn_Close = new ToolStripMenuItem();
+            reDrawToolStripMenuItem = new ToolStripMenuItem();
             tableLayoutPanel1.SuspendLayout();
             Menu_Main.SuspendLayout();
             Menu_WindowBtn.SuspendLayout();
@@ -159,14 +160,14 @@ namespace JTaskBar
             // 
             // Menu_Main
             // 
-            Menu_Main.Items.AddRange(new ToolStripItem[] { exitToolStripMenuItem });
+            Menu_Main.Items.AddRange(new ToolStripItem[] { reDrawToolStripMenuItem, exitToolStripMenuItem });
             Menu_Main.Name = "Menu_Main";
-            Menu_Main.Size = new Size(94, 26);
+            Menu_Main.Size = new Size(181, 70);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(93, 22);
+            exitToolStripMenuItem.Size = new Size(180, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -180,52 +181,59 @@ namespace JTaskBar
             // 
             Menu_WindowBtn.Items.AddRange(new ToolStripItem[] { MBtn_Restore, MBtn_Minimize, toolStripMenuItem1, MBtn_Location, MBtn_TskMn, toolStripMenuItem4, MBtn_Close });
             Menu_WindowBtn.Name = "Menu_WindowBtn";
-            Menu_WindowBtn.Size = new Size(181, 148);
+            Menu_WindowBtn.Size = new Size(179, 126);
             // 
             // MBtn_Restore
             // 
             MBtn_Restore.Name = "MBtn_Restore";
-            MBtn_Restore.Size = new Size(180, 22);
+            MBtn_Restore.Size = new Size(178, 22);
             MBtn_Restore.Text = "Restore";
             MBtn_Restore.Click += MBtn_Restore_Click;
             // 
             // MBtn_Minimize
             // 
             MBtn_Minimize.Name = "MBtn_Minimize";
-            MBtn_Minimize.Size = new Size(180, 22);
+            MBtn_Minimize.Size = new Size(178, 22);
             MBtn_Minimize.Text = "Minimize";
             MBtn_Minimize.Click += MBtn_Minimize_Click;
             // 
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(177, 6);
+            toolStripMenuItem1.Size = new Size(175, 6);
             // 
             // MBtn_Location
             // 
             MBtn_Location.Name = "MBtn_Location";
-            MBtn_Location.Size = new Size(180, 22);
+            MBtn_Location.Size = new Size(178, 22);
             MBtn_Location.Text = "Open File Location";
             MBtn_Location.Click += MBtn_Location_Click;
             // 
             // MBtn_TskMn
             // 
             MBtn_TskMn.Name = "MBtn_TskMn";
-            MBtn_TskMn.Size = new Size(180, 22);
+            MBtn_TskMn.Size = new Size(178, 22);
             MBtn_TskMn.Text = "Open Task Manager";
             MBtn_TskMn.Click += MBtn_TskMn_Click;
             // 
             // toolStripMenuItem4
             // 
             toolStripMenuItem4.Name = "toolStripMenuItem4";
-            toolStripMenuItem4.Size = new Size(177, 6);
+            toolStripMenuItem4.Size = new Size(175, 6);
             // 
             // MBtn_Close
             // 
             MBtn_Close.Name = "MBtn_Close";
-            MBtn_Close.Size = new Size(180, 22);
+            MBtn_Close.Size = new Size(178, 22);
             MBtn_Close.Text = "Close";
             MBtn_Close.Click += MBtn_Close_Click;
+            // 
+            // reDrawToolStripMenuItem
+            // 
+            reDrawToolStripMenuItem.Name = "reDrawToolStripMenuItem";
+            reDrawToolStripMenuItem.Size = new Size(180, 22);
+            reDrawToolStripMenuItem.Text = "Re-Draw";
+            reDrawToolStripMenuItem.Click += reDrawToolStripMenuItem_Click;
             // 
             // FormTaskBar
             // 
@@ -270,6 +278,7 @@ namespace JTaskBar
         private ToolStripMenuItem MBtn_TskMn;
         private ToolStripSeparator toolStripMenuItem4;
         private ToolStripMenuItem MBtn_Close;
+        private ToolStripMenuItem reDrawToolStripMenuItem;
     }
 }
 

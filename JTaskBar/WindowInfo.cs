@@ -25,7 +25,7 @@ namespace JTaskBar
         public IntPtr Handle { get; set; }
         public string Title { get; set; }
         public string ProcessName { get; set; }
-        public string IconPath { get; set; } 
+        //public string IconPath { get; set; } 
         public IntPtr ParentHandle { get; set; }
     }
 }
