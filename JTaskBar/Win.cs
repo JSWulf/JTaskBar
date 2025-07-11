@@ -46,6 +46,7 @@ namespace JTaskBar
         [DllImport("user32.dll")] public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
         [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
         [DllImport("user32.dll", SetLastError = true)] public static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
+        [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
         public delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
@@ -59,6 +60,7 @@ namespace JTaskBar
         public const int WM_GETICON = 0x007F;
         public const int ICON_SMALL = 0;
         public const int GCL_HICONSM = -34;
+        public const uint WM_CLOSE = 0x0010;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT

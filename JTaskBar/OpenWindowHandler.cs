@@ -122,6 +122,11 @@ namespace JTaskBar
 
         }
 
+        /// <summary>
+        /// Attempts to get the icon from the process, else from the executable
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <returns></returns>
         public static Icon GetWindowIcon(IntPtr hWnd)
         {
             IntPtr hIcon = SendMessage(hWnd, WM_GETICON, (IntPtr)ICON_SMALL, IntPtr.Zero);
@@ -133,6 +138,24 @@ namespace JTaskBar
             if (hIcon != IntPtr.Zero)
             {
                 return Icon.FromHandle(hIcon);
+            }
+
+            // Fallback: try to get icon from executable
+            try
+            {
+                Win.GetWindowThreadProcessId(hWnd, out uint pid);
+                var process = Process.GetProcessById((int)pid);
+                string exePath = process.MainModule?.FileName;
+
+                if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+                {
+                    return Icon.ExtractAssociatedIcon(exePath) ?? SystemIcons.Application;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Access denied or other issue
+                Console.WriteLine($"Icon error: {ex.ToString()}");
             }
 
             return SystemIcons.Application;

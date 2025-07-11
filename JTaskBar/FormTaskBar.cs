@@ -57,7 +57,8 @@ namespace JTaskBar
         public int BarWidth
         {
             get { return barWidth; }
-            set { 
+            set
+            {
                 barWidth = value;
                 this.Width = value;
                 LiVw_Apps.Columns[Window.Name].Width = this.Width - 18;
@@ -70,7 +71,8 @@ namespace JTaskBar
         public uint DockSide
         {
             get { return dockSide; }
-            set { 
+            set
+            {
                 dockSide = value;
                 UpdateAppBarPosition(this, dockSide, BarWidth);
             }
@@ -194,7 +196,7 @@ namespace JTaskBar
 
             if (selectedItem.Tag is WindowInfo selectedWindow)
             {
-                
+
 
                 if (selectedWindow.Handle == Win.GetForegroundWindow())
                 {
@@ -218,6 +220,19 @@ namespace JTaskBar
             var item = LiVw_Apps.GetItemAt(e.X, e.Y);
             if (item == null || item.Tag is not WindowInfo selectedWindow)
             {
+                return;
+            }
+
+            if (e.Button == MouseButtons.Right)
+            {
+                //var item = LiVw_Apps.GetItemAt(e.X, e.Y);
+                if (item != null)
+                {
+                    LiVw_Apps.SelectedItems.Clear();
+                    item.Selected = true;
+                    Menu_WindowBtn.Tag = item.Tag;
+                    Menu_WindowBtn.Show(LiVw_Apps, e.Location);
+                }
                 return;
             }
 
@@ -251,7 +266,7 @@ namespace JTaskBar
             if (item.Tag is WindowInfo info)
             {
                 string tooltip = $"{info.Title}\n{info.ProcessName}";//\nParent: {info.ParentHandle}
-                
+
                 //TT_Win.Show(tooltip, this, new Point(e.X + 8, e.Y + 15), 2000);
 
                 Point screenPoint = LiVw_Apps.PointToScreen(new Point(e.X, e.Y));
@@ -320,33 +335,60 @@ namespace JTaskBar
             var x = this;
         }
 
-        
+        private void MBtn_Restore_Click(object sender, EventArgs e)
+        {
+            if (Menu_WindowBtn.Tag is WindowInfo info)
+            {
+                Win.ShowWindow(info.Handle, Win.SW_RESTORE);
+                OpenWindowHandler.ForceFocus(info.Handle);
+            }
+        }
 
-        
+        private void MBtn_Minimize_Click(object sender, EventArgs e)
+        {
+            if (Menu_WindowBtn.Tag is WindowInfo info)
+            {
+                Win.ShowWindow(info.Handle, Win.SW_MINIMIZE);
+            }
+        }
 
-        
+        private void MBtn_Location_Click(object sender, EventArgs e)
+        {
+            if (Menu_WindowBtn.Tag is WindowInfo info)
+            {
+                try
+                {
+                    Win.GetWindowThreadProcessId(info.Handle, out uint pid);
+                    var process = Process.GetProcessById((int)pid);
+                    string path = process.MainModule?.FileName;
 
-        //private void RegisterAppBar()
-        //{
-        //    APPBARDATA abd = new APPBARDATA();
-        //    abd.cbSize = (uint)Marshal.SizeOf(abd);
-        //    abd.hWnd = this.Handle;
-        //    abd.uEdge = DockSide;
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        Process.Start("explorer.exe", $"/select,\"{path}\"");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Unable to open file location: {ex.Message}");
+                }
+            }
+        }
 
-        //    Rectangle screen = Screen.PrimaryScreen.WorkingArea;
-        //    abd.rc.top = screen.Top;
-        //    abd.rc.bottom = screen.Bottom;
-        //    abd.rc.left = screen.Left;
-        //    abd.rc.right = screen.Left + this.Width;
 
-        //    Win.SHAppBarMessage(ABM_NEW, ref abd);
-        //    Win.SHAppBarMessage(ABM_SETPOS, ref abd);
+        private void MBtn_TskMn_Click(object sender, EventArgs e)
+        {
+            Process.Start("taskmgr.exe");
+        }
 
-        //    this.Location = new Point(abd.rc.left, abd.rc.top);
-        //    this.Size = new Size(abd.rc.right - abd.rc.left, abd.rc.bottom - abd.rc.top);
-        //}
+        private void MBtn_Close_Click(object sender, EventArgs e)
+        {
+            if (Menu_WindowBtn.Tag is WindowInfo info)
+            {
+                PostMessage(info.Handle, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            }
+        }
 
-        
+
 
 
 

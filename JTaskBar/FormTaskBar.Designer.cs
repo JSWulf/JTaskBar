@@ -16,24 +16,6 @@
 |                    //                                                                                         @#:+#.                               |
 |                   \/                                                                                         *##@-                                 |
 \*==================================================================================================================================================*/
-/*==================================================================================================================================================*\
-|               .%#@+                                                                       *#%.                     ..    ..                 .*- *. |
-|              -##+@.                                      +##.                             @##                    -###*  *#@              -**-  .+* |
-|             -###*                                      .##%*             +##%##+   -##*   =#=                   %#++%  :##%            .#%=-=.  .* |
-|            :##:                                       :#@%+          -%#*   %##.  -##%   -##.                 .##.=%  .###.          :@#=%##*..-*  |
-|       . -=###-                                       :###*         +##.    @##.  *##@.   @#-                 :#% #=   @##.         *%%#=:@+-:%:+.  |
-|      %#=--##:                        **          :*--###-         .*:     %##. .@###.   %#.                 *#+*#:   +#%            +@+*:+@*@:*%-  |
-|         -##*           -@####=    -####*      :###%@##%                  %##. +#%##*   @#.  .%#+   .@#+.   -#@##.  .##%          ..=#+*=#+-+.=*#*  |
-|        +##*         .%###=  ##*.%#=.-##*   . @#=  *###.  :#.            @##.:##-*##. .#%  =####=  @###@. ..###+  .@##@  :@@.      .##*:%%-##@=@@:  |
-|       =##@%%%%%+:-. --##-   @#-..  *#%  .%#:@#: -#*:#@ +#=             *##@##*  .##%##-    -##:.##.:##.:#%:#=   %#+##-@#*    .==:+*..+* -=*+=+%=:  |
-|  -+%@###:      .+###*.##  +#@.     @#=##@- -#@*#=   :@@:               %###-      .-       -####-  +###*  .#@*##::###+       .:=:.  . .*--+=%*@#   |
-|.%@=@##+            -.  *@=-         :+-     .+:                         ..                   ..     ..      ..   @#+#%         ..   .   --.-+#%.   |
-|                   /\                                                                                            %#% :#*                            |
-|                    \\ _____________________________________________________________________                    +#@ -#%                             |
-|      (O)[\\\\\\\\\\(O)#####################################################################>                  -##..#+                              |
-|                    //                                                                                         @#:+#.                               |
-|                   \/                                                                                         *##@-                                 |
-\*==================================================================================================================================================*/
 namespace JTaskBar
 {
     partial class FormTaskBar
@@ -75,8 +57,17 @@ namespace JTaskBar
             exitToolStripMenuItem = new ToolStripMenuItem();
             Timer_Clock = new System.Windows.Forms.Timer(components);
             TT_Win = new ToolTip(components);
+            Menu_WindowBtn = new ContextMenuStrip(components);
+            MBtn_Restore = new ToolStripMenuItem();
+            MBtn_Minimize = new ToolStripMenuItem();
+            toolStripMenuItem1 = new ToolStripSeparator();
+            MBtn_Location = new ToolStripMenuItem();
+            MBtn_TskMn = new ToolStripMenuItem();
+            toolStripMenuItem4 = new ToolStripSeparator();
+            MBtn_Close = new ToolStripMenuItem();
             tableLayoutPanel1.SuspendLayout();
             Menu_Main.SuspendLayout();
+            Menu_WindowBtn.SuspendLayout();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -185,6 +176,57 @@ namespace JTaskBar
             Timer_Clock.Interval = 1000;
             Timer_Clock.Tick += Timer_Clock_Tick;
             // 
+            // Menu_WindowBtn
+            // 
+            Menu_WindowBtn.Items.AddRange(new ToolStripItem[] { MBtn_Restore, MBtn_Minimize, toolStripMenuItem1, MBtn_Location, MBtn_TskMn, toolStripMenuItem4, MBtn_Close });
+            Menu_WindowBtn.Name = "Menu_WindowBtn";
+            Menu_WindowBtn.Size = new Size(181, 148);
+            // 
+            // MBtn_Restore
+            // 
+            MBtn_Restore.Name = "MBtn_Restore";
+            MBtn_Restore.Size = new Size(180, 22);
+            MBtn_Restore.Text = "Restore";
+            MBtn_Restore.Click += MBtn_Restore_Click;
+            // 
+            // MBtn_Minimize
+            // 
+            MBtn_Minimize.Name = "MBtn_Minimize";
+            MBtn_Minimize.Size = new Size(180, 22);
+            MBtn_Minimize.Text = "Minimize";
+            MBtn_Minimize.Click += MBtn_Minimize_Click;
+            // 
+            // toolStripMenuItem1
+            // 
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new Size(177, 6);
+            // 
+            // MBtn_Location
+            // 
+            MBtn_Location.Name = "MBtn_Location";
+            MBtn_Location.Size = new Size(180, 22);
+            MBtn_Location.Text = "Open File Location";
+            MBtn_Location.Click += MBtn_Location_Click;
+            // 
+            // MBtn_TskMn
+            // 
+            MBtn_TskMn.Name = "MBtn_TskMn";
+            MBtn_TskMn.Size = new Size(180, 22);
+            MBtn_TskMn.Text = "Open Task Manager";
+            MBtn_TskMn.Click += MBtn_TskMn_Click;
+            // 
+            // toolStripMenuItem4
+            // 
+            toolStripMenuItem4.Name = "toolStripMenuItem4";
+            toolStripMenuItem4.Size = new Size(177, 6);
+            // 
+            // MBtn_Close
+            // 
+            MBtn_Close.Name = "MBtn_Close";
+            MBtn_Close.Size = new Size(180, 22);
+            MBtn_Close.Text = "Close";
+            MBtn_Close.Click += MBtn_Close_Click;
+            // 
             // FormTaskBar
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -204,6 +246,7 @@ namespace JTaskBar
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             Menu_Main.ResumeLayout(false);
+            Menu_WindowBtn.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -219,6 +262,14 @@ namespace JTaskBar
         private System.Windows.Forms.Timer Timer_Clock;
         private System.Windows.Forms.ToolTip TT_Win;
         private ColumnHeader Window;
+        private ContextMenuStrip Menu_WindowBtn;
+        private ToolStripMenuItem MBtn_Restore;
+        private ToolStripMenuItem MBtn_Minimize;
+        private ToolStripSeparator toolStripMenuItem1;
+        private ToolStripMenuItem MBtn_Location;
+        private ToolStripMenuItem MBtn_TskMn;
+        private ToolStripSeparator toolStripMenuItem4;
+        private ToolStripMenuItem MBtn_Close;
     }
 }
 
