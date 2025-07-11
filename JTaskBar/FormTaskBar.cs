@@ -389,6 +389,19 @@ namespace JTaskBar
         }
 
 
+        protected override void WndProc(ref Message m)
+        {
+            const int WM_DISPLAYCHANGE = 0x007E;
+            const int WM_SETTINGCHANGE = 0x001A;
+
+            base.WndProc(ref m);
+
+            if (m.Msg == WM_DISPLAYCHANGE || m.Msg == WM_SETTINGCHANGE)
+            {
+                // Recalculate AppBar position
+                UpdateAppBarPosition(this, DockSide, BarWidth);
+            }
+        }
 
 
 
