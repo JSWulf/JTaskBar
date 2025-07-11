@@ -130,9 +130,22 @@ namespace JTaskBar
                 }
                 else
                 {
+                    if (!icons.Images.ContainsKey(window.Handle.ToString()))
+                    {
+                        try
+                        {
+                            Icon icon = OpenWindowHandler.GetWindowIcon(window.Handle);
+                            icons.Images.Add(window.Handle.ToString(), icon);
+                        }
+                        catch
+                        {
+                            icons.Images.Add(window.Handle.ToString(), SystemIcons.Application);
+                        }
+                    }
+
                     var item = new ListViewItem(window.Title)
                     {
-                        //ImageIndex = iconIndex,
+                        ImageKey = window.Handle.ToString(),
                         Tag = window
                     };
                     LiVw_Apps.Items.Add(item);
@@ -272,10 +285,33 @@ namespace JTaskBar
             Menu_Main.Show();
         }
 
+        private List<IntPtr> minimizedWindows = new();
+
         private void Btn_Desktop_Click(object sender, EventArgs e)
         {
-            // Placeholder for future minimize/restore all
+            if (minimizedWindows.Count == 0)
+            {
+                // Minimize all visible windows
+                foreach (var win in WinItems)
+                {
+                    if (!Win.IsIconic(win.Handle))
+                    {
+                        Win.ShowWindow(win.Handle, Win.SW_MINIMIZE);
+                        minimizedWindows.Add(win.Handle);
+                    }
+                }
+            }
+            else
+            {
+                // Restore previously minimized windows
+                foreach (var hWnd in minimizedWindows)
+                {
+                    Win.ShowWindow(hWnd, Win.SW_RESTORE);
+                }
+                minimizedWindows.Clear();
+            }
         }
+
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {

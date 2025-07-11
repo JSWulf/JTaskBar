@@ -63,7 +63,10 @@ namespace JTaskBar
                 string processName = string.Empty;
                 try
                 {
-                    processName = Process.GetProcessById((int)pid).ProcessName;
+                    //processName = Process.GetProcessById((int)pid).ProcessName;
+                    var process = Process.GetProcessById((int)pid);
+                    string exePath = process.MainModule?.FileName ?? string.Empty;
+                    processName = FileVersionInfo.GetVersionInfo(exePath).FileDescription ?? process.ProcessName;
                 }
                 catch (Exception ex)
                 {
