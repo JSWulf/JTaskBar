@@ -44,6 +44,8 @@ namespace JTaskBar
         [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
         [DllImport("shell32.dll")] public static extern uint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
         [DllImport("user32.dll")] public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll", SetLastError = true)] public static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
 
         public delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
@@ -54,6 +56,9 @@ namespace JTaskBar
         public const int WS_EX_TOOLWINDOW = 0x00000080;
         public const int WS_CAPTION = 0x00C00000;
         public const int WS_SYSMENU = 0x00080000;
+        public const int WM_GETICON = 0x007F;
+        public const int ICON_SMALL = 0;
+        public const int GCL_HICONSM = -34;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -71,5 +76,6 @@ namespace JTaskBar
             public RECT rc;
             public int lParam;
         }
+
     }
 }

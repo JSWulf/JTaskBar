@@ -22,10 +22,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
+using static JTaskBar.Win;
 
 namespace JTaskBar
 {
-    public static class OpenWindowGetter
+    public static class OpenWindowHandler //OpenWindowGetter
     {
         public static List<WindowInfo> GetOpenWindows()
         {
@@ -116,6 +117,22 @@ namespace JTaskBar
             }
 
 
+        }
+
+        public static Icon GetWindowIcon(IntPtr hWnd)
+        {
+            IntPtr hIcon = SendMessage(hWnd, WM_GETICON, (IntPtr)ICON_SMALL, IntPtr.Zero);
+            if (hIcon == IntPtr.Zero)
+            {
+                hIcon = GetClassLongPtr(hWnd, GCL_HICONSM);
+            }
+
+            if (hIcon != IntPtr.Zero)
+            {
+                return Icon.FromHandle(hIcon);
+            }
+
+            return SystemIcons.Application;
         }
 
     }

@@ -104,7 +104,7 @@ namespace JTaskBar
 
         private void SetButtons()
         {
-            var currentWindows = OpenWindowGetter.GetOpenWindows();
+            var currentWindows = OpenWindowHandler.GetOpenWindows();
             var existingHandles = new HashSet<IntPtr>(WinItems.Select(w => w.Handle));
             var newHandles = new HashSet<IntPtr>(currentWindows.Select(w => w.Handle));
 
@@ -189,7 +189,7 @@ namespace JTaskBar
                 }
                 else
                 {
-                    OpenWindowGetter.ForceFocus(selectedWindow.Handle);
+                    OpenWindowHandler.ForceFocus(selectedWindow.Handle);
                     lastFocusedHandle = selectedWindow.Handle;
 
                     //if ForceFocus fails:
@@ -215,7 +215,7 @@ namespace JTaskBar
             }
             else
             {
-                OpenWindowGetter.ForceFocus(selectedWindow.Handle);
+                OpenWindowHandler.ForceFocus(selectedWindow.Handle);
                 lastFocusedHandle = selectedWindow.Handle;
             }
 
