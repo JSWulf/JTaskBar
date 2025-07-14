@@ -87,12 +87,14 @@ namespace JTaskBar
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            APPBARDATA abd = new APPBARDATA
-            {
-                cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
-                hWnd = this.Handle
-            };
-            SHAppBarMessage(ABM_REMOVE, ref abd);
+            //APPBARDATA abd = new APPBARDATA
+            //{
+            //    cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
+            //    hWnd = this.Handle
+            //};
+            //SHAppBarMessage(ABM_REMOVE, ref abd);
+
+            UnsetAppBar(this);
 
             base.OnFormClosing(e);
         }
@@ -389,6 +391,22 @@ namespace JTaskBar
         }
 
 
+        //protected override void WndProc(ref Message m)
+        //{
+        //    const int WM_DISPLAYCHANGE = 0x007E;
+        //    const int WM_SETTINGCHANGE = 0x001A;
+
+        //    base.WndProc(ref m);
+
+        //    //refine if statement
+        //    if (m.Msg == WM_DISPLAYCHANGE || m.Msg == WM_SETTINGCHANGE)
+        //    {
+        //        //UnsetAppBar(this);
+
+        //        //UpdateAppBarPosition(this, DockSide, BarWidth);
+        //    }
+        //}
+
         protected override void WndProc(ref Message m)
         {
             const int WM_DISPLAYCHANGE = 0x007E;
@@ -398,19 +416,27 @@ namespace JTaskBar
 
             if (m.Msg == WM_DISPLAYCHANGE || m.Msg == WM_SETTINGCHANGE)
             {
-                // Recalculate AppBar position
-                UpdateAppBarPosition(this, DockSide, BarWidth);
+                if (HasMonitorConfigurationChanged())
+                {
+                    Console.WriteLine("Change positive");
+                    UnsetAppBar(this);
+                    UpdateAppBarPosition(this, DockSide, BarWidth);
+                    CacheMonitorConfiguration(); // Update stored config
+                }
             }
         }
 
+
         private void reDrawToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            APPBARDATA abd = new APPBARDATA
-            {
-                cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
-                hWnd = this.Handle
-            };
-            SHAppBarMessage(ABM_REMOVE, ref abd);
+            //APPBARDATA abd = new APPBARDATA
+            //{
+            //    cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
+            //    hWnd = this.Handle
+            //};
+            //SHAppBarMessage(ABM_REMOVE, ref abd);
+
+            UnsetAppBar(this);
 
             UpdateAppBarPosition(this, DockSide, BarWidth);
         }
