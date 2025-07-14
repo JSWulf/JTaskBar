@@ -119,10 +119,7 @@ namespace JTaskBar
                 return true;
             }, 0);
 
-            return windows
-                .OrderBy(w => w.ProcessName.ToLowerInvariant())
-                .ThenBy(w => w.Title.ToLowerInvariant())
-                .ToList();
+            return windows;
 
         }
 

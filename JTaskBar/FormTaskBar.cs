@@ -167,7 +167,10 @@ namespace JTaskBar
             }
 
             // Update WinItems cache
-            WinItems = currentWindows;
+            WinItems = currentWindows
+                .OrderBy(w => w.ProcessName.ToLowerInvariant())
+                .ThenBy(w => w.Title.ToLowerInvariant())
+                .ToList();
 
             // Highlight the currently focused window
             IntPtr foreground = Win.GetForegroundWindow();
@@ -269,16 +272,18 @@ namespace JTaskBar
             {
                 string tooltip = $"{info.Title}\n{info.ProcessName}";//\nParent: {info.ParentHandle}
 
-                //TT_Win.Show(tooltip, this, new Point(e.X + 8, e.Y + 15), 2000);
-
                 Point screenPoint = LiVw_Apps.PointToScreen(new Point(e.X, e.Y));
                 screenPoint.Offset(12, 24);
-                TT_Win.Show(tooltip, this, screenPoint, 5000);
+                TT_Win.Show(tooltip, this, screenPoint, 2000);
 
             }
         }
 
 
+        /// <summary>
+        /// Tooltip event on hover. Old method. Replaced with LiVw_Apps_MouseMove
+        /// </summary>
+        /// <param name="pt"></param>
         private void ShowItemData(Point pt)
         {
             Point point = LiVw_Apps.PointToClient(Cursor.Position);
@@ -304,6 +309,11 @@ namespace JTaskBar
 
         private List<IntPtr> minimizedWindows = new();
 
+        /// <summary>
+        /// Minimize all windows and restore on second click.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Btn_Desktop_Click(object sender, EventArgs e)
         {
             if (minimizedWindows.Count == 0)
@@ -354,6 +364,11 @@ namespace JTaskBar
             }
         }
 
+        /// <summary>
+        /// Opens file location for current process.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MBtn_Location_Click(object sender, EventArgs e)
         {
             if (Menu_WindowBtn.Tag is WindowInfo info)
@@ -390,23 +405,10 @@ namespace JTaskBar
             }
         }
 
-
-        //protected override void WndProc(ref Message m)
-        //{
-        //    const int WM_DISPLAYCHANGE = 0x007E;
-        //    const int WM_SETTINGCHANGE = 0x001A;
-
-        //    base.WndProc(ref m);
-
-        //    //refine if statement
-        //    if (m.Msg == WM_DISPLAYCHANGE || m.Msg == WM_SETTINGCHANGE)
-        //    {
-        //        //UnsetAppBar(this);
-
-        //        //UpdateAppBarPosition(this, DockSide, BarWidth);
-        //    }
-        //}
-
+        /// <summary>
+        /// Listener for screen changes - add a condition to redraw if true.
+        /// </summary>
+        /// <param name="m"></param>
         protected override void WndProc(ref Message m)
         {
             const int WM_DISPLAYCHANGE = 0x007E;
@@ -429,13 +431,6 @@ namespace JTaskBar
 
         private void reDrawToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //APPBARDATA abd = new APPBARDATA
-            //{
-            //    cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
-            //    hWnd = this.Handle
-            //};
-            //SHAppBarMessage(ABM_REMOVE, ref abd);
-
             UnsetAppBar(this);
 
             UpdateAppBarPosition(this, DockSide, BarWidth);
