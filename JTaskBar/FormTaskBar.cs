@@ -106,6 +106,9 @@ namespace JTaskBar
             SetButtons();
         }
 
+        /// <summary>
+        /// Iterates through the window information and adds the items to the list.
+        /// </summary>
         private void SetButtons()
         {
             var currentWindows = OpenWindowHandler.GetOpenWindows();
@@ -167,10 +170,7 @@ namespace JTaskBar
             }
 
             // Update WinItems cache
-            WinItems = currentWindows
-                .OrderBy(w => w.ProcessName.ToLowerInvariant())
-                .ThenBy(w => w.Title.ToLowerInvariant())
-                .ToList();
+            WinItems = currentWindows;
 
             // Highlight the currently focused window
             IntPtr foreground = Win.GetForegroundWindow();
@@ -411,27 +411,36 @@ namespace JTaskBar
         /// <param name="m"></param>
         protected override void WndProc(ref Message m)
         {
-            const int WM_DISPLAYCHANGE = 0x007E;
-            const int WM_SETTINGCHANGE = 0x001A;
-
             base.WndProc(ref m);
 
             if (m.Msg == WM_DISPLAYCHANGE || m.Msg == WM_SETTINGCHANGE)
             {
-                if (HasMonitorConfigurationChanged())
+                if (AppBar.HasMonitorConfigurationChanged())
                 {
                     Console.WriteLine("Change positive");
-                    UnsetAppBar(this);
-                    UpdateAppBarPosition(this, DockSide, BarWidth);
-                    CacheMonitorConfiguration(); // Update stored config
+                    //UnsetAppBar(this);
+                    AppBar.UpdateAppBarPosition(this, DockSide, BarWidth);
+                    AppBar.CacheMonitorConfiguration();
+                }
+            }
+            else if (m.Msg == WM_APPBARNOTIFY)
+            {
+                int notifyCode = m.WParam.ToInt32();
+
+                if (notifyCode == ABN_POSCHANGED)
+                {
+                    Console.WriteLine("ABN_POSCHANGED received");
+                    //UnsetAppBar(this);
+                    AppBar.UpdateAppBarPosition(this, DockSide, BarWidth);
                 }
             }
         }
 
 
+
         private void reDrawToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UnsetAppBar(this);
+            //UnsetAppBar(this);
 
             UpdateAppBarPosition(this, DockSide, BarWidth);
         }

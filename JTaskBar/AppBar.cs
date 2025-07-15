@@ -33,19 +33,37 @@ namespace JTaskBar
         public const int ABM_SETPOS = 0x00000003;
         public const int ABE_LEFT = 0;
         public const int ABE_RIGHT = 2;
+        public const int WM_APPBARNOTIFY = 0x004B;
+        public const int ABN_POSCHANGED = 0x0001;
+        public const int WM_DISPLAYCHANGE = 0x007E;
+        public const int WM_SETTINGCHANGE = 0x001A;
+
+        private static bool isAppBarRegistered = false;
+        private static uint callbackMessageId = 0;
 
         public static void UpdateAppBarPosition(Form form, uint side, int width)
         {
+            if (callbackMessageId == 0)
+            {
+                callbackMessageId = RegisterWindowMessage("AppBarMessage");
+            }
+
             APPBARDATA abd = new APPBARDATA
             {
                 cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
                 hWnd = form.Handle,
-                uEdge = side
+                uEdge = side,
+                uCallbackMessage = (uint)callbackMessageId
             };
+
+            if (!isAppBarRegistered)
+            {
+                SHAppBarMessage(ABM_NEW, ref abd);
+                isAppBarRegistered = true;
+            }
 
             //Screen currentScreen = Screen.FromHandle(form.Handle);
             //Rectangle screen = Screen.FromHandle(form.Handle).WorkingArea;
-
             Rectangle screen = Screen.PrimaryScreen.WorkingArea;
 
             abd.rc.top = screen.Top;
@@ -62,15 +80,15 @@ namespace JTaskBar
                 abd.rc.left = screen.Right - width;
             }
 
-            SHAppBarMessage(ABM_NEW, ref abd);
             SHAppBarMessage(ABM_SETPOS, ref abd);
 
             form.Location = new Point(abd.rc.left, abd.rc.top);
             form.Size = new Size(abd.rc.right - abd.rc.left, abd.rc.bottom - abd.rc.top);
 
             lastRedrawTime = DateTime.Now;
-
+            Console.WriteLine($"Position updated {lastRedrawTime}");
         }
+
 
         public static void UnsetAppBar(Form form)
         {
@@ -80,6 +98,7 @@ namespace JTaskBar
                 hWnd = form.Handle
             };
             SHAppBarMessage(ABM_REMOVE, ref abd);
+            Console.WriteLine($"Position unset {DateTime.Now.ToString()}");
         }
 
         private static List<Rectangle> monitorBounds = new();
