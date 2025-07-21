@@ -54,6 +54,7 @@ namespace JTaskBar
             LiVw_Apps = new ListView();
             Window = new ColumnHeader();
             Menu_Main = new ContextMenuStrip(components);
+            reDrawToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
             Timer_Clock = new System.Windows.Forms.Timer(components);
             TT_Win = new ToolTip(components);
@@ -65,7 +66,6 @@ namespace JTaskBar
             MBtn_TskMn = new ToolStripMenuItem();
             toolStripMenuItem4 = new ToolStripSeparator();
             MBtn_Close = new ToolStripMenuItem();
-            reDrawToolStripMenuItem = new ToolStripMenuItem();
             tableLayoutPanel1.SuspendLayout();
             Menu_Main.SuspendLayout();
             Menu_WindowBtn.SuspendLayout();
@@ -162,12 +162,19 @@ namespace JTaskBar
             // 
             Menu_Main.Items.AddRange(new ToolStripItem[] { reDrawToolStripMenuItem, exitToolStripMenuItem });
             Menu_Main.Name = "Menu_Main";
-            Menu_Main.Size = new Size(181, 70);
+            Menu_Main.Size = new Size(120, 48);
+            // 
+            // reDrawToolStripMenuItem
+            // 
+            reDrawToolStripMenuItem.Name = "reDrawToolStripMenuItem";
+            reDrawToolStripMenuItem.Size = new Size(119, 22);
+            reDrawToolStripMenuItem.Text = "Re-Draw";
+            reDrawToolStripMenuItem.Click += reDrawToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(180, 22);
+            exitToolStripMenuItem.Size = new Size(119, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -228,13 +235,6 @@ namespace JTaskBar
             MBtn_Close.Text = "Close";
             MBtn_Close.Click += MBtn_Close_Click;
             // 
-            // reDrawToolStripMenuItem
-            // 
-            reDrawToolStripMenuItem.Name = "reDrawToolStripMenuItem";
-            reDrawToolStripMenuItem.Size = new Size(180, 22);
-            reDrawToolStripMenuItem.Text = "Re-Draw";
-            reDrawToolStripMenuItem.Click += reDrawToolStripMenuItem_Click;
-            // 
             // FormTaskBar
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -249,7 +249,6 @@ namespace JTaskBar
             ShowIcon = false;
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.Manual;
-            TopMost = true;
             Load += FormTaskBar_Load;
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
