@@ -18,6 +18,7 @@
 \*==================================================================================================================================================*/
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -39,13 +40,26 @@ namespace JTaskBar
         public const int WM_SETTINGCHANGE = 0x001A;
 
         private static bool isAppBarRegistered = false;
-        private static uint callbackMessageId = 0;
+
+        public static uint callbackMessageId { get; private set; } = 0;
+
+
+        private static bool isUpdatingPosition = false;
 
         public static void UpdateAppBarPosition(Form form, uint side, int width)
         {
+            if (isUpdatingPosition)
+            {
+                return;
+            }
+
+            isUpdatingPosition = true;
+
+
             if (callbackMessageId == 0)
             {
                 callbackMessageId = RegisterWindowMessage("AppBarMessage");
+                Debug.WriteLine($"Registered AppBarMessage: {callbackMessageId}");
             }
 
             APPBARDATA abd = new APPBARDATA
@@ -58,13 +72,14 @@ namespace JTaskBar
 
             if (!isAppBarRegistered)
             {
+                Debug.WriteLine("Registering AppBar...");
                 SHAppBarMessage(ABM_NEW, ref abd);
                 isAppBarRegistered = true;
             }
 
             //Screen currentScreen = Screen.FromHandle(form.Handle);
             //Rectangle screen = Screen.FromHandle(form.Handle).WorkingArea;
-            Rectangle screen = Screen.PrimaryScreen.WorkingArea;
+            Rectangle screen = Screen.PrimaryScreen.Bounds;
 
             abd.rc.top = screen.Top;
             abd.rc.bottom = screen.Bottom;
@@ -86,7 +101,9 @@ namespace JTaskBar
             form.Size = new Size(abd.rc.right - abd.rc.left, abd.rc.bottom - abd.rc.top);
 
             lastRedrawTime = DateTime.Now;
-            Console.WriteLine($"Position updated {lastRedrawTime}");
+            Debug.WriteLine($"Position updated {lastRedrawTime}");
+
+            isUpdatingPosition = false;
         }
 
 
@@ -98,7 +115,8 @@ namespace JTaskBar
                 hWnd = form.Handle
             };
             SHAppBarMessage(ABM_REMOVE, ref abd);
-            Console.WriteLine($"Position unset {DateTime.Now.ToString()}");
+            isAppBarRegistered = false;
+            Debug.WriteLine($"Position unset {DateTime.Now.ToString()}");
         }
 
         private static List<Rectangle> monitorBounds = new();
@@ -109,33 +127,84 @@ namespace JTaskBar
 
         public static void CacheMonitorConfiguration()
         {
-            monitorBounds = Screen.AllScreens.Select(s => s.WorkingArea).ToList();
+            monitorBounds = Screen.AllScreens.Select(s => s.Bounds).ToList();
             primaryScreen = Screen.PrimaryScreen;
+        }
+
+        //public static bool HasMonitorConfigurationChanged()
+        //{
+        //    if ((DateTime.Now - lastRedrawTime) < redrawCooldown)
+        //    { return false; }
+
+        //    var currentBounds = Screen.AllScreens.Select(s => s.WorkingArea).ToList();
+        //    var currentPrimary = Screen.PrimaryScreen;
+
+        //    if (monitorBounds.Count != currentBounds.Count)
+        //    { return true; }
+
+        //    for (int i = 0; i < monitorBounds.Count; i++)
+        //    {
+        //        if (!monitorBounds[i].Equals(currentBounds[i]))
+        //        { return true; }
+        //    }
+
+        //    if (primaryScreen.DeviceName != currentPrimary.DeviceName)
+        //    { return true; }
+
+        //    return false;
+        //}
+
+        private static bool AreRectsSignificantlyDifferent(Rectangle a, Rectangle b, int tolerance = 2)
+        {
+            return Math.Abs(a.Left - b.Left) > tolerance ||
+                   Math.Abs(a.Top - b.Top) > tolerance ||
+                   Math.Abs(a.Right - b.Right) > tolerance ||
+                   Math.Abs(a.Bottom - b.Bottom) > tolerance;
         }
 
         public static bool HasMonitorConfigurationChanged()
         {
-            if ((DateTime.Now - lastRedrawTime) < redrawCooldown)
-            { return false; }
+            //if ((DateTime.Now - lastRedrawTime) < redrawCooldown)
+            //{
+            //    return false;
+            //}
 
-            var currentBounds = Screen.AllScreens.Select(s => s.WorkingArea).ToList();
+            var currentBounds = Screen.AllScreens.Select(s => s.Bounds).ToList();
             var currentPrimary = Screen.PrimaryScreen;
 
             if (monitorBounds.Count != currentBounds.Count)
-            { return true; }
+            {
+                Debug.WriteLine("Monitor count changed.");
+                return true;
+            }
 
             for (int i = 0; i < monitorBounds.Count; i++)
             {
-                if (!monitorBounds[i].Equals(currentBounds[i]))
-                { return true; }
+                if (AreRectsSignificantlyDifferent(monitorBounds[i], currentBounds[i]))
+                {
+                    Debug.WriteLine($"Monitor {i} bounds changed: {monitorBounds[i]} → {currentBounds[i]}");
+                    return true;
+                }
             }
 
             if (primaryScreen.DeviceName != currentPrimary.DeviceName)
-            { return true; }
+            {
+                Debug.WriteLine($"Primary screen changed: {primaryScreen.DeviceName} → {currentPrimary.DeviceName}");
+                return true;
+            }
 
             return false;
         }
 
+
+        public static void LogMonitorConfiguration()
+        {
+            Debug.WriteLine("Current monitor configuration:");
+            foreach (var screen in Screen.AllScreens)
+            {
+                Debug.WriteLine($"  Device: {screen.DeviceName}, Bounds: {screen.Bounds}, WorkingArea: {screen.WorkingArea}, Primary: {screen.Primary}");
+            }
+        }
 
 
     }

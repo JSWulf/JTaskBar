@@ -45,6 +45,7 @@ namespace JTaskBar
             LiVw_Apps.Columns.Add("Window", this.Width - 18);//todo: set to dynamic value based on how wide the form is.
 
             this.TopMost = true;
+            Debug.WriteLine("test starting...");
         }
 
         public BackgroundWorker ClockWorker { get; set; } = new BackgroundWorker();
@@ -413,27 +414,43 @@ namespace JTaskBar
         {
             base.WndProc(ref m);
 
+            //Debug.WriteLine(m);
+
             if (m.Msg == WM_DISPLAYCHANGE || m.Msg == WM_SETTINGCHANGE)
             {
-                if (AppBar.HasMonitorConfigurationChanged())
+                if (HasMonitorConfigurationChanged())
                 {
-                    Console.WriteLine("Change positive");
+                    LogMonitorConfiguration();
+                    Debug.WriteLine("Change positive");
                     //UnsetAppBar(this);
-                    AppBar.UpdateAppBarPosition(this, DockSide, BarWidth);
-                    AppBar.CacheMonitorConfiguration();
+                    UpdateAppBarPosition(this, DockSide, BarWidth);
+                    CacheMonitorConfiguration();
                 }
             }
-            else if (m.Msg == WM_APPBARNOTIFY)
+            //else if (m.Msg == WM_APPBARNOTIFY)
+            //{
+            //    Debug.WriteLine("Condition appbarnotify");
+            //    int notifyCode = m.WParam.ToInt32();
+
+            //    if (notifyCode == ABN_POSCHANGED)
+            //    {
+            //        Debug.WriteLine("ABN_POSCHANGED received");
+            //        //UnsetAppBar(this);
+            //        UpdateAppBarPosition(this, DockSide, BarWidth);
+            //    }
+            //}
+            else if (m.Msg == callbackMessageId)
             {
+                Debug.WriteLine($"AppBar callback received: {m.WParam}");
                 int notifyCode = m.WParam.ToInt32();
 
                 if (notifyCode == ABN_POSCHANGED)
                 {
-                    Console.WriteLine("ABN_POSCHANGED received");
-                    //UnsetAppBar(this);
-                    AppBar.UpdateAppBarPosition(this, DockSide, BarWidth);
+                    Debug.WriteLine("ABN_POSCHANGED received");
+                    //UpdateAppBarPosition(this, DockSide, BarWidth);
                 }
             }
+
         }
 
 
