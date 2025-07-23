@@ -79,6 +79,9 @@ namespace JTaskBar
             }
         }
 
+        private IntPtr lastFullscreenWindow = IntPtr.Zero;
+
+
         private void FormTaskBar_Load(object sender, EventArgs e)
         {
             //RegisterAppBar();
@@ -105,6 +108,24 @@ namespace JTaskBar
         {
             Lab_Clock.Text = DateTime.Now.ToString("HH:mm \ndddd\nyyyy-MM-dd") + "\n" + DateTime.Now.ISOWorkWeek();
             SetButtons();
+
+
+            // Fullscreen detection
+            IntPtr foreground = Win.GetForegroundWindow();
+            if (IsWindowFullscreen(foreground))
+            {
+                if (foreground != lastFullscreenWindow)
+                {
+                    lastFullscreenWindow = foreground;
+                    OnEnterFullscreen(foreground);
+                }
+            }
+            else if (lastFullscreenWindow != IntPtr.Zero)
+            {
+                OnExitFullscreen(lastFullscreenWindow);
+                lastFullscreenWindow = IntPtr.Zero;
+            }
+
         }
 
         /// <summary>
@@ -461,5 +482,20 @@ namespace JTaskBar
 
             UpdateAppBarPosition(this, DockSide, BarWidth);
         }
+
+        private void OnEnterFullscreen(IntPtr hWnd)
+        {
+            Debug.WriteLine($"Entered fullscreen: {hWnd}");
+            this.Visible = false;
+            SetWindowPos(Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+
+        private void OnExitFullscreen(IntPtr hWnd)
+        {
+            Debug.WriteLine($"Exited fullscreen: {hWnd}");
+            this.Visible = true;
+            SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+
     }
 }

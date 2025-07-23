@@ -185,6 +185,18 @@ namespace JTaskBar
             }
         }
 
+        
+
+        public static bool IsWindowFullscreen(IntPtr hWnd)
+        {
+            if (!GetWindowRect(hWnd, out Win.RECT rect))
+                return false;
+
+            Rectangle windowRect = new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+            Rectangle screenRect = Screen.FromHandle(hWnd).Bounds;
+
+            return windowRect.Equals(screenRect);
+        }
 
     }
 
