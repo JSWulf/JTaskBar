@@ -100,6 +100,8 @@ namespace JTaskBar
             form.Location = new Point(abd.rc.left, abd.rc.top);
             form.Size = new Size(abd.rc.right - abd.rc.left, abd.rc.bottom - abd.rc.top);
 
+            //SetWindowPos(form.Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
             lastRedrawTime = DateTime.Now;
             Debug.WriteLine($"Position updated {lastRedrawTime}");
 
@@ -130,29 +132,6 @@ namespace JTaskBar
             monitorBounds = Screen.AllScreens.Select(s => s.Bounds).ToList();
             primaryScreen = Screen.PrimaryScreen;
         }
-
-        //public static bool HasMonitorConfigurationChanged()
-        //{
-        //    if ((DateTime.Now - lastRedrawTime) < redrawCooldown)
-        //    { return false; }
-
-        //    var currentBounds = Screen.AllScreens.Select(s => s.WorkingArea).ToList();
-        //    var currentPrimary = Screen.PrimaryScreen;
-
-        //    if (monitorBounds.Count != currentBounds.Count)
-        //    { return true; }
-
-        //    for (int i = 0; i < monitorBounds.Count; i++)
-        //    {
-        //        if (!monitorBounds[i].Equals(currentBounds[i]))
-        //        { return true; }
-        //    }
-
-        //    if (primaryScreen.DeviceName != currentPrimary.DeviceName)
-        //    { return true; }
-
-        //    return false;
-        //}
 
         private static bool AreRectsSignificantlyDifferent(Rectangle a, Rectangle b, int tolerance = 2)
         {
