@@ -53,8 +53,10 @@ namespace JTaskBar
             Lab_Clock = new Label();
             DGV_Apps = new DataGridView();
             Menu_Main = new ContextMenuStrip(components);
-            reDrawToolStripMenuItem = new ToolStripMenuItem();
-            exitToolStripMenuItem = new ToolStripMenuItem();
+            Menu_Redraw = new ToolStripMenuItem();
+            Menu_LRToggle = new ToolStripMenuItem();
+            toolStripMenuItem2 = new ToolStripSeparator();
+            Menu_Exit = new ToolStripMenuItem();
             Timer_Clock = new System.Windows.Forms.Timer(components);
             TT_Win = new ToolTip(components);
             Menu_WindowBtn = new ContextMenuStrip(components);
@@ -132,6 +134,7 @@ namespace JTaskBar
             Lab_Clock.TabIndex = 2;
             Lab_Clock.Text = "Clock Text";
             Lab_Clock.TextAlign = ContentAlignment.BottomCenter;
+            Lab_Clock.Click += Lab_Clock_Click;
             // 
             // DGV_Apps
             // 
@@ -155,23 +158,35 @@ namespace JTaskBar
             // 
             // Menu_Main
             // 
-            Menu_Main.Items.AddRange(new ToolStripItem[] { reDrawToolStripMenuItem, exitToolStripMenuItem });
+            Menu_Main.Items.AddRange(new ToolStripItem[] { Menu_Redraw, Menu_LRToggle, toolStripMenuItem2, Menu_Exit });
             Menu_Main.Name = "Menu_Main";
-            Menu_Main.Size = new Size(120, 48);
+            Menu_Main.Size = new Size(166, 76);
             // 
-            // reDrawToolStripMenuItem
+            // Menu_Redraw
             // 
-            reDrawToolStripMenuItem.Name = "reDrawToolStripMenuItem";
-            reDrawToolStripMenuItem.Size = new Size(119, 22);
-            reDrawToolStripMenuItem.Text = "Re-Draw";
-            reDrawToolStripMenuItem.Click += reDrawToolStripMenuItem_Click;
+            Menu_Redraw.Name = "Menu_Redraw";
+            Menu_Redraw.Size = new Size(165, 22);
+            Menu_Redraw.Text = "Re-Draw";
+            Menu_Redraw.Click += reDrawToolStripMenuItem_Click;
             // 
-            // exitToolStripMenuItem
+            // Menu_LRToggle
             // 
-            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(119, 22);
-            exitToolStripMenuItem.Text = "Exit";
-            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            Menu_LRToggle.Name = "Menu_LRToggle";
+            Menu_LRToggle.Size = new Size(165, 22);
+            Menu_LRToggle.Text = "Toggle Left/Right";
+            Menu_LRToggle.Click += Menu_LRToggle_Click;
+            // 
+            // toolStripMenuItem2
+            // 
+            toolStripMenuItem2.Name = "toolStripMenuItem2";
+            toolStripMenuItem2.Size = new Size(162, 6);
+            // 
+            // Menu_Exit
+            // 
+            Menu_Exit.Name = "Menu_Exit";
+            Menu_Exit.Size = new Size(165, 22);
+            Menu_Exit.Text = "Exit";
+            Menu_Exit.Click += exitToolStripMenuItem_Click;
             // 
             // Timer_Clock
             // 
@@ -260,7 +275,7 @@ namespace JTaskBar
         private System.Windows.Forms.Button Btn_Desktop;
         private System.Windows.Forms.Label Lab_Clock;
         private System.Windows.Forms.ContextMenuStrip Menu_Main;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem Menu_Exit;
         private System.Windows.Forms.Timer Timer_Clock;
         private System.Windows.Forms.ToolTip TT_Win;
         private ContextMenuStrip Menu_WindowBtn;
@@ -271,8 +286,10 @@ namespace JTaskBar
         private ToolStripMenuItem MBtn_TskMn;
         private ToolStripSeparator toolStripMenuItem4;
         private ToolStripMenuItem MBtn_Close;
-        private ToolStripMenuItem reDrawToolStripMenuItem;
+        private ToolStripMenuItem Menu_Redraw;
         private DataGridView DGV_Apps;
+        private ToolStripMenuItem Menu_LRToggle;
+        private ToolStripSeparator toolStripMenuItem2;
     }
 }
 

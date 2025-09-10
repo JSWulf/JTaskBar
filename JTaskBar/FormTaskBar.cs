@@ -64,7 +64,7 @@ namespace JTaskBar
                 Name = "Title",
                 HeaderText = "Window Title",
                 DataPropertyName = "Title",
-                Width = this.Width - 20
+                Width = this.Width// - 15
             });
 
             //DGV_Apps.Columns.Add("Process", "Process");
@@ -107,6 +107,9 @@ namespace JTaskBar
 
         public ImageList icons { get; private set; } = new ImageList();
 
+        //public static FormTaskBar? Instance { get; private set; }
+        public Screen AssignedScreen { get; set; }
+
         private int barWidth = 101;
 
         public int BarWidth
@@ -136,12 +139,56 @@ namespace JTaskBar
 
         private IntPtr lastFullscreenWindow = IntPtr.Zero;
 
+        private IntPtr hookHandle = IntPtr.Zero;
+
+        private Win.WinEventDelegate? winEventProc;
+
+        private ToolStripDropDown? calendarPopup;
+
+        public void StartWindowAlertHook()
+        {
+            winEventProc = new Win.WinEventDelegate(WinEventCallback);
+            hookHandle = Win.SetWinEventHook(
+                Win.EVENT_OBJECT_NAMECHANGE, Win.EVENT_OBJECT_NAMECHANGE,
+                IntPtr.Zero, winEventProc, 0, 0, Win.WINEVENT_OUTOFCONTEXT);
+        }
+
+        public void StopWindowAlertHook()
+        {
+            if (hookHandle != IntPtr.Zero)
+            {
+                Win.UnhookWinEvent(hookHandle);
+                hookHandle = IntPtr.Zero;
+            }
+        }
+
+        private void WinEventCallback(IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
+                        int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        {
+            if (idObject == Win.OBJID_WINDOW && hwnd != IntPtr.Zero)
+            {
+                //uncomment if filtering alerts to specific screens
+                //var screen = Screen.FromHandle(hwnd);
+                //if (AssignedScreen != null && screen.DeviceName == AssignedScreen.DeviceName)
+                //{
+                    NotifyWindowAlert(hwnd);
+                //}
+            }
+        }
+
+        public static bool IsWindowOnScreen(IntPtr hwnd, Screen screen)
+        {
+            return Screen.FromHandle(hwnd).DeviceName == screen.DeviceName;
+        }
+
 
         private void FormTaskBar_Load(object sender, EventArgs e)
         {
             //RegisterAppBar();
             UpdateAppBarPosition(this, DockSide, BarWidth);
             Timer_Clock.Start();
+            StartWindowAlertHook();
+
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -152,6 +199,7 @@ namespace JTaskBar
             //    hWnd = this.Handle
             //};
             //SHAppBarMessage(ABM_REMOVE, ref abd);
+            StopWindowAlertHook();
 
             UnsetAppBar(this);
 
@@ -188,7 +236,7 @@ namespace JTaskBar
             if (e.RowIndex < 0)
             { return; }
             var row = DGV_Apps.Rows[e.RowIndex];
-            if (row.DataBoundItem is not WindowInfo selectedWindow) 
+            if (row.DataBoundItem is not WindowInfo selectedWindow)
             { return; }
 
             if (lastFocusedHandle.HasValue && selectedWindow.Handle == lastFocusedHandle.Value)
@@ -231,7 +279,7 @@ namespace JTaskBar
             if (hit.RowIndex >= 0)
             {
                 var row = DGV_Apps.Rows[hit.RowIndex];
-                if (row == lastTooltipRow) 
+                if (row == lastTooltipRow)
                 { return; }
                 lastTooltipRow = row;
 
@@ -444,7 +492,7 @@ namespace JTaskBar
         private void Btn_Menu_Click(object sender, EventArgs e)
         {
 
-            
+
             Point buttonScreenPoint = Btn_Menu.PointToScreen(Point.Empty);
             buttonScreenPoint.Offset(0, Btn_Menu.Height);
 
@@ -602,6 +650,23 @@ namespace JTaskBar
 
         }
 
+        public void NotifyWindowAlert(IntPtr hwnd)
+        {
+            var row = DGV_Apps.Rows.Cast<DataGridViewRow>()
+                .FirstOrDefault(r => (r.DataBoundItem as WindowInfo)?.Handle == hwnd);
+            if (row != null)
+            {
+                Task.Run(async () =>
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        Invoke(() => row.DefaultCellStyle.BackColor = (i % 2 == 0) ? Color.DarkRed : Color.Black);
+                        await Task.Delay(250);
+                    }
+                    Invoke(() => row.DefaultCellStyle.BackColor = Color.Black);
+                });
+            }
+        }
 
 
         private void reDrawToolStripMenuItem_Click(object sender, EventArgs e)
@@ -623,6 +688,47 @@ namespace JTaskBar
             Debug.WriteLine($"Exited fullscreen: {hWnd}");
             this.Visible = true;
             SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+
+        private void Menu_LRToggle_Click(object sender, EventArgs e)
+        {
+            DockSide = (DockSide == ABE_LEFT) ? (uint)ABE_RIGHT : (uint)ABE_LEFT;
+            
+        }
+
+        private void Lab_Clock_Click(object sender, EventArgs e)
+        {
+            if (calendarPopup != null && calendarPopup.Visible)
+            {
+                calendarPopup.Close();
+                calendarPopup = null;
+                return;
+            }
+
+            MonthCalendar calendar = new MonthCalendar
+            {
+                MaxSelectionCount = 1,
+                ShowToday = true,
+                ShowTodayCircle = true
+            };
+
+            ToolStripControlHost host = new ToolStripControlHost(calendar)
+            {
+                Margin = Padding.Empty,
+                Padding = Padding.Empty,
+                AutoSize = false,
+                Size = calendar.Size
+            };
+
+            calendarPopup = new ToolStripDropDown
+            {
+                Padding = Padding.Empty
+            };
+            calendarPopup.Items.Add(host);
+
+            Point screenPoint = Lab_Clock.PointToScreen(Point.Empty);
+            screenPoint.Offset(0, Lab_Clock.Height);
+            calendarPopup.Show(screenPoint);
         }
 
     }

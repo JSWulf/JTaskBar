@@ -31,7 +31,7 @@ namespace JTaskBar
     {
 
         private static readonly HashSet<int> InaccessibleProcesses = new();
-
+        
 
         public static List<WindowInfo> GetOpenWindows()
         {
