@@ -51,8 +51,7 @@ namespace JTaskBar
             Btn_Menu = new Button();
             Btn_Desktop = new Button();
             Lab_Clock = new Label();
-            LiVw_Apps = new ListView();
-            Window = new ColumnHeader();
+            DGV_Apps = new DataGridView();
             Menu_Main = new ContextMenuStrip(components);
             reDrawToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
@@ -67,6 +66,7 @@ namespace JTaskBar
             toolStripMenuItem4 = new ToolStripSeparator();
             MBtn_Close = new ToolStripMenuItem();
             tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)DGV_Apps).BeginInit();
             Menu_Main.SuspendLayout();
             Menu_WindowBtn.SuspendLayout();
             SuspendLayout();
@@ -78,7 +78,7 @@ namespace JTaskBar
             tableLayoutPanel1.Controls.Add(Btn_Menu, 0, 0);
             tableLayoutPanel1.Controls.Add(Btn_Desktop, 0, 5);
             tableLayoutPanel1.Controls.Add(Lab_Clock, 0, 3);
-            tableLayoutPanel1.Controls.Add(LiVw_Apps, 0, 1);
+            tableLayoutPanel1.Controls.Add(DGV_Apps, 0, 1);
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.Location = new Point(0, 0);
             tableLayoutPanel1.Margin = new Padding(4, 3, 4, 3);
@@ -90,6 +90,7 @@ namespace JTaskBar
             tableLayoutPanel1.RowStyles.Add(new RowStyle());
             tableLayoutPanel1.RowStyles.Add(new RowStyle());
             tableLayoutPanel1.RowStyles.Add(new RowStyle());
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel1.Size = new Size(99, 1156);
             tableLayoutPanel1.TabIndex = 0;
             // 
@@ -132,31 +133,25 @@ namespace JTaskBar
             Lab_Clock.Text = "Clock Text";
             Lab_Clock.TextAlign = ContentAlignment.BottomCenter;
             // 
-            // LiVw_Apps
+            // DGV_Apps
             // 
-            LiVw_Apps.BackColor = Color.Black;
-            LiVw_Apps.BorderStyle = BorderStyle.None;
-            LiVw_Apps.Columns.AddRange(new ColumnHeader[] { Window });
-            LiVw_Apps.Dock = DockStyle.Fill;
-            LiVw_Apps.Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            LiVw_Apps.ForeColor = Color.White;
-            LiVw_Apps.FullRowSelect = true;
-            LiVw_Apps.HeaderStyle = ColumnHeaderStyle.None;
-            LiVw_Apps.Location = new Point(4, 44);
-            LiVw_Apps.Margin = new Padding(4, 3, 4, 3);
-            LiVw_Apps.MultiSelect = false;
-            LiVw_Apps.Name = "LiVw_Apps";
-            LiVw_Apps.Scrollable = false;
-            LiVw_Apps.Size = new Size(91, 1063);
-            LiVw_Apps.TabIndex = 3;
-            LiVw_Apps.UseCompatibleStateImageBehavior = false;
-            LiVw_Apps.View = View.Details;
-            LiVw_Apps.MouseDown += LiVw_Apps_MouseDown;
-            LiVw_Apps.MouseMove += LiVw_Apps_MouseMove;
-            // 
-            // Window
-            // 
-            Window.Width = 200;
+            DGV_Apps.AllowUserToAddRows = false;
+            DGV_Apps.AllowUserToDeleteRows = false;
+            DGV_Apps.AllowUserToResizeColumns = false;
+            DGV_Apps.AllowUserToResizeRows = false;
+            DGV_Apps.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
+            DGV_Apps.BackgroundColor = Color.Black;
+            DGV_Apps.ColumnHeadersVisible = false;
+            DGV_Apps.Dock = DockStyle.Fill;
+            DGV_Apps.Location = new Point(3, 44);
+            DGV_Apps.MultiSelect = false;
+            DGV_Apps.Name = "DGV_Apps";
+            DGV_Apps.ReadOnly = true;
+            DGV_Apps.RowHeadersVisible = false;
+            DGV_Apps.ScrollBars = ScrollBars.Vertical;
+            DGV_Apps.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            DGV_Apps.Size = new Size(93, 1063);
+            DGV_Apps.TabIndex = 4;
             // 
             // Menu_Main
             // 
@@ -252,6 +247,7 @@ namespace JTaskBar
             Load += FormTaskBar_Load;
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)DGV_Apps).EndInit();
             Menu_Main.ResumeLayout(false);
             Menu_WindowBtn.ResumeLayout(false);
             ResumeLayout(false);
@@ -263,12 +259,10 @@ namespace JTaskBar
         private System.Windows.Forms.Button Btn_Menu;
         private System.Windows.Forms.Button Btn_Desktop;
         private System.Windows.Forms.Label Lab_Clock;
-        private System.Windows.Forms.ListView LiVw_Apps;
         private System.Windows.Forms.ContextMenuStrip Menu_Main;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Timer Timer_Clock;
         private System.Windows.Forms.ToolTip TT_Win;
-        private ColumnHeader Window;
         private ContextMenuStrip Menu_WindowBtn;
         private ToolStripMenuItem MBtn_Restore;
         private ToolStripMenuItem MBtn_Minimize;
@@ -278,6 +272,7 @@ namespace JTaskBar
         private ToolStripSeparator toolStripMenuItem4;
         private ToolStripMenuItem MBtn_Close;
         private ToolStripMenuItem reDrawToolStripMenuItem;
+        private DataGridView DGV_Apps;
     }
 }
 

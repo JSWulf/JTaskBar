@@ -53,6 +53,16 @@ namespace JTaskBar
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)] public static extern uint RegisterWindowMessage(string lpString);
         [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
         [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hWnd, out Win.RECT lpRect);
+        [DllImport("user32.dll")] public static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+        [DllImport("user32.dll")] public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+        // Constants
+        public const uint EVENT_OBJECT_NAMECHANGE = 0x800C;
+        public const uint EVENT_OBJECT_SHOW = 0x8002;
+        public const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
+        public const uint WINEVENT_OUTOFCONTEXT = 0x0000;
+        public const int OBJID_WINDOW = 0;
+
 
         public delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
@@ -73,6 +83,11 @@ namespace JTaskBar
         public const uint SWP_NOACTIVATE = 0x0010;
 
         public static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+
+
+        public delegate void WinEventDelegate(
+            IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
+            int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
