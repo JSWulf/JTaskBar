@@ -49,6 +49,7 @@ Windows 11 removed support for vertical taskbars. This project restores that fun
 - Responsive to screen resolution and monitor layout changes
 - Auto Sort Windows list by name and process ID
 - Changed list container from ListView to DataGridView
+- Calendar view on click of clock
 
 ---
 
