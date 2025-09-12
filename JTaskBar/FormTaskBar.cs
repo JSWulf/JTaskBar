@@ -56,7 +56,7 @@ namespace JTaskBar
                 HeaderText = "",
                 Width = 16,
                 ImageLayout = DataGridViewImageCellLayout.Zoom,
-                DataPropertyName = "Icon"
+                DataPropertyName = "IconIm"
             });
             //DGV_Apps.Columns.Add("Title", "Window Title");
             DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
@@ -76,13 +76,13 @@ namespace JTaskBar
                 Visible = false
             });
 
-            //DGV_Apps.AutoGenerateColumns = false;
-
-            //DGV_Apps.Columns["Process"].Visible = false;
-
-            //LiVw_Apps.SmallImageList = icons;
-
-            //LiVw_Apps.Columns.Add("Window", this.Width - 18);//todo: set to dynamic value based on how wide the form is.
+            DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "ProcessID",
+                HeaderText = "Process ID",
+                DataPropertyName = "ProcessID",
+                Visible = false
+            });
 
             //DGV_Apps.BackgroundColor = Color.Black;
             DGV_Apps.DefaultCellStyle.BackColor = Color.Black;
@@ -103,7 +103,7 @@ namespace JTaskBar
 
         public BindingSource DGVWins { get; set; } = new BindingSource();
         //public BackgroundWorker ClockWorker { get; set; } = new BackgroundWorker();
-        public List<WindowInfo> WinItems { get; private set; } = new List<WindowInfo>();
+        //public List<WindowInfo> WinItems { get; private set; } = new List<WindowInfo>();
 
         public ImageList icons { get; private set; } = new ImageList();
 
@@ -193,12 +193,6 @@ namespace JTaskBar
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            //APPBARDATA abd = new APPBARDATA
-            //{
-            //    cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
-            //    hWnd = this.Handle
-            //};
-            //SHAppBarMessage(ABM_REMOVE, ref abd);
             StopWindowAlertHook();
 
             UnsetAppBar(this);
@@ -306,13 +300,13 @@ namespace JTaskBar
         {
 
             var currentWindows = OpenWindowHandler.GetOpenWindows();
-            var existingHandles = new HashSet<IntPtr>(WinItems.Select(w => w.Handle));
+            //var existingHandles = new HashSet<IntPtr>(WinItems.Select(w => w.Handle));
             var newHandles = new HashSet<IntPtr>(currentWindows.Select(w => w.Handle));
 
             //var windowList = (List<WindowInfo>)DGVWins.DataSource;
             var windowList = DGVWins.List as BindingList<WindowInfo>;
 
-
+            int added = 0;
             // Update or add new items
             foreach (var window in currentWindows)
             {
@@ -325,28 +319,12 @@ namespace JTaskBar
                     {
                         existingItem.Title = window.Title;
                         existingItem.ProcessName = window.ProcessName;
-                        existingItem.Icon = icons.Images[window.Handle.ToString()];
-                        // Notify BindingSource of change if needed
                     }
                 }
                 else
                 {
-                    if (!icons.Images.ContainsKey(window.Handle.ToString()))
-                    {
-                        try
-                        {
-                            Icon icon = OpenWindowHandler.GetWindowIcon(window.Handle);
-                            icons.Images.Add(window.Handle.ToString(), icon);
-                        }
-                        catch
-                        {
-                            icons.Images.Add(window.Handle.ToString(), SystemIcons.Application);
-                        }
-                    }
-
-                    window.Icon = icons.Images[window.Handle.ToString()];
-
                     windowList.Add(window);
+                    added++;
                 }
             }
 
@@ -359,8 +337,21 @@ namespace JTaskBar
                 }
             }
 
-            // Update WinItems cache
-            WinItems = currentWindows;
+            if (added > 0)
+            {
+                //windowList.OrderBy(x => x.ProcessName).ThenBy(y => y.ProcessID).ToList();
+
+
+                var sorted = windowList.OrderBy(x => x.ProcessName).ThenBy(x => x.ProcessID).ToList();
+
+                windowList.RaiseListChangedEvents = false;
+                windowList.Clear();
+                foreach (var item in sorted)
+                    windowList.Add(item);
+                windowList.RaiseListChangedEvents = true;
+                windowList.ResetBindings();
+
+            }
 
             // Highlight the currently focused window
             IntPtr foreground = Win.GetForegroundWindow();
@@ -377,118 +368,7 @@ namespace JTaskBar
         //store last click for minimize on click again.
         private IntPtr? lastFocusedHandle { get; set; } = null;
 
-        //private void LiVw_Apps_SelectedIndexChanged(object sender, EventArgs e)
-        //{
-        //    if (LiVw_Apps.SelectedItems.Count == 0)
-        //    {
-        //        return;
-        //    }
-
-        //    var selectedItem = LiVw_Apps.SelectedItems[0];
-
-        //    if (selectedItem.Tag is WindowInfo selectedWindow)
-        //    {
-
-
-        //        if (selectedWindow.Handle == Win.GetForegroundWindow())
-        //        {
-        //            Win.ShowWindow(selectedWindow.Handle, Win.SW_MINIMIZE);
-        //        }
-        //        else
-        //        {
-        //            OpenWindowHandler.ForceFocus(selectedWindow.Handle);
-        //            lastFocusedHandle = selectedWindow.Handle;
-
-        //            //if ForceFocus fails:
-        //            //Win.ShowWindow(selectedWindow.Handle, Win.SW_RESTORE);
-        //            //Win.SetForegroundWindow(selectedWindow.Handle);
-        //        }
-        //    }
-
-        //}
-
-        //private void LiVw_Apps_MouseDown(object sender, MouseEventArgs e)
-        //{
-        //    var item = LiVw_Apps.GetItemAt(e.X, e.Y);
-        //    if (item == null || item.Tag is not WindowInfo selectedWindow)
-        //    {
-        //        return;
-        //    }
-
-        //    if (e.Button == MouseButtons.Right)
-        //    {
-        //        //var item = LiVw_Apps.GetItemAt(e.X, e.Y);
-        //        if (item != null)
-        //        {
-        //            LiVw_Apps.SelectedItems.Clear();
-        //            item.Selected = true;
-        //            Menu_WindowBtn.Tag = item.Tag;
-        //            Menu_WindowBtn.Show(LiVw_Apps, e.Location);
-        //        }
-        //        return;
-        //    }
-
-        //    if (lastFocusedHandle.HasValue && selectedWindow.Handle == lastFocusedHandle.Value)
-        //    {
-        //        Win.ShowWindow(selectedWindow.Handle, Win.SW_MINIMIZE);
-        //        lastFocusedHandle = IntPtr.Zero; // Reset to avoid double-minimize
-        //    }
-        //    else
-        //    {
-        //        OpenWindowHandler.ForceFocus(selectedWindow.Handle);
-        //        lastFocusedHandle = selectedWindow.Handle;
-        //    }
-
-        //    LiVw_Apps.SelectedItems.Clear();
-        //}
-
-        //private ListViewItem? lastTooltipItem = null;
-
-        //private void LiVw_Apps_MouseMove(object sender, MouseEventArgs e)
-        //{
-        //    var item = LiVw_Apps.GetItemAt(e.X, e.Y);
-
-        //    if (item == null || item == lastTooltipItem)
-        //    {
-        //        return;
-        //    }
-
-        //    lastTooltipItem = item;
-
-        //    if (item.Tag is WindowInfo info)
-        //    {
-        //        string tooltip = $"{info.Title}\n{info.ProcessName}";//\nParent: {info.ParentHandle}
-
-        //        Point screenPoint = LiVw_Apps.PointToScreen(new Point(e.X, e.Y));
-        //        screenPoint.Offset(12, 24);
-        //        TT_Win.Show(tooltip, this, screenPoint, 2000);
-
-        //    }
-        //}
-
-
-        /// <summary>
-        /// Tooltip event on hover. Old method. Replaced with LiVw_Apps_MouseMove
-        /// </summary>
-        /// <param name="pt"></param>
-        //private void ShowItemData(Point pt)
-        //{
-        //    Point point = LiVw_Apps.PointToClient(Cursor.Position);
-        //    ListViewItem? item = LiVw_Apps.GetItemAt(point.X, point.Y);
-
-        //    if (item == null)
-        //    {
-        //        return;
-        //    }
-
-        //    if (item.Tag is WindowInfo info)
-        //    {
-        //        string tooltip = $"{info.ProcessName}\nParent: {info.ParentHandle}\n{info.Title}";
-        //        TT_Win.Show(tooltip, this, new Point(pt.X + 8, pt.Y + 15), 2000);
-        //    }
-        //}
-
-
+       
         private void Btn_Menu_Click(object sender, EventArgs e)
         {
 
@@ -516,6 +396,7 @@ namespace JTaskBar
         {
             if (minimizedWindows.Count == 0)
             {
+                var WinItems = DGVWins.List as BindingList<WindowInfo>;
                 // Minimize all visible windows
                 foreach (var win in WinItems)
                 {
@@ -526,15 +407,16 @@ namespace JTaskBar
                     }
                 }
             }
-            else
-            {
-                // Restore previously minimized windows
-                foreach (var hWnd in minimizedWindows)
-                {
-                    Win.ShowWindow(hWnd, Win.SW_RESTORE);
-                }
-                minimizedWindows.Clear();
-            }
+            //this caused BSOD when restoring a large number of windows. - turned off for now.
+            //else
+            //{
+            //    // Restore previously minimized windows
+            //    foreach (var hWnd in minimizedWindows)
+            //    {
+            //        Win.ShowWindow(hWnd, Win.SW_RESTORE);
+            //    }
+            //    minimizedWindows.Clear();
+            //}
         }
 
 

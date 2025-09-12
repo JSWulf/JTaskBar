@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using static JTaskBar.Win;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace JTaskBar
 {
@@ -107,12 +108,16 @@ namespace JTaskBar
 
                 IntPtr parent = Win.GetParent(hWnd);
 
+                Icon icon = GetWindowIcon(hWnd);
+
                 windows.Add(new WindowInfo
                 {
                     Handle = hWnd,
                     Title = builder.ToString(),
                     ProcessName = processName,
                     ParentHandle = parent,
+                    ProcessID = pid,
+                    IconIm = icon
                     //IconPath = null //Placeholder for future icon support
                 });
 
