@@ -25,7 +25,7 @@ Windows 11 removed support for vertical taskbars. This project restores that fun
 - Desktop button - Minimize all windows with a single click
 - Show tooltips on hover
 - Provide a context menu for window actions
-- Support additional toolbars (planned)
+- Support additional toolbars (Not yet implemented)
 
 ---
 

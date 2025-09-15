@@ -1,21 +1,21 @@
-/*==================================================================================================================================================*\
-|               .%#@+                                                                       *#%.                     ..    ..                 .*- *. |
-|              -##+@.                                      +##.                             @##                    -###*  *#@              -**-  .+* |
-|             -###*                                      .##%*             +##%##+   -##*   =#=                   %#++%  :##%            .#%=-=.  .* |
-|            :##:                                       :#@%+          -%#*   %##.  -##%   -##.                 .##.=%  .###.          :@#=%##*..-*  |
-|       . -=###-                                       :###*         +##.    @##.  *##@.   @#-                 :#% #=   @##.         *%%#=:@+-:%:+.  |
-|      %#=--##:                        **          :*--###-         .*:     %##. .@###.   %#.                 *#+*#:   +#%            +@+*:+@*@:*%-  |
-|         -##*           -@####=    -####*      :###%@##%                  %##. +#%##*   @#.  .%#+   .@#+.   -#@##.  .##%          ..=#+*=#+-+.=*#*  |
-|        +##*         .%###=  ##*.%#=.-##*   . @#=  *###.  :#.            @##.:##-*##. .#%  =####=  @###@. ..###+  .@##@  :@@.      .##*:%%-##@=@@:  |
-|       =##@%%%%%+:-. --##-   @#-..  *#%  .%#:@#: -#*:#@ +#=             *##@##*  .##%##-    -##:.##.:##.:#%:#=   %#+##-@#*    .==:+*..+* -=*+=+%=:  |
-|  -+%@###:      .+###*.##  +#@.     @#=##@- -#@*#=   :@@:               %###-      .-       -####-  +###*  .#@*##::###+       .:=:.  . .*--+=%*@#   |
-|.%@=@##+            -.  *@=-         :+-     .+:                         ..                   ..     ..      ..   @#+#%         ..   .   --.-+#%.   |
-|                   /\                                                                                            %#% :#*                            |
-|                    \\ _____________________________________________________________________                    +#@ -#%                             |
-|      (O)[\\\\\\\\\\(O)#####################################################################>                  -##..#+                              |
-|                    //                                                                                         @#:+#.                               |
-|                   \/                                                                                         *##@-                                 |
-\*==================================================================================================================================================*/
+/*======================================================================================================================================================*\
+|               .%#@+                                                                       *#%.                     ..    ..                     -*--@: |
+|              -##+@.                                      +##.                             @##                    -###*  *#@                   -+:   *+ |
+|             -###*                                      .##%*             +##%##+   -##*   =#=                   %#++%  :##%               -%=::.   .=+=|
+|            :##:                                       :#@%+          -%#*   %##.  -##%   -##.                 .##.=%  .###.             .@%+@ -+. .. -+|
+|       . -=###-                                       :###*         +##.    @##.  *##@.   @#-                 :#% #=   @##.             *@#=####:  ..=* |
+|      %#=--##:                        **          :*--###-         .*:     %##. .@###.   %#.                 *#+*#:   +#%            +#@=+=%%@#%:*- *+  |
+|         -##*           -@####=    -####*      :###%@##%                  %##. +#%##*   @#.  .%#+   .@#+.   -#@##.  .##%           =@+##@=:=#.  -@+.@.  |
+|        +##*         .%###=  ##*.%#=.-##*   . @#=  *###.  :#.            @##.:##-*##. .#%  =####=  @###@. ..###+  .@##@  :@@.        %#@*.*=%#+--=+:@   |
+|       =##@%%%%%+:-. --##-   @#-..  *#%  .%#:@#: -#*:#@ +#=             *##@##*  .##%##-    -##:.##.:##.:#%:#=   %#+##-@#*          =% +%++.+@:%@ :.@-  |
+|  -+%@###:      .+###*.##  +#@.     @#=##@- -#@*#=   :@@:               %###-      .-       -####-  +###*  .#@*##::###+          .:##=:=%=#@.:@..%+=#+. |
+|.%@=@##+            -.  *@=-         :+-     .+:                         ..                   ..     ..      ..   @#+#%          .*###+*%#:.##%*-=@*%:  |
+|                   /\                                                                                            %#% :#*      .--=###-  ..#:.#+-%#-%#:  |
+|                    \\ _____________________________________________________________________                    +#@ -#%    +#%. :..  *@@.  +=:*##:+@=-  |
+|      (O)[\\\\\\\\\\(O)#####################################################################>                  -##..#+    . :@=-     .  :=-.+=+%**%#@   |
+|                    //                                                                                         @#:+#.      .  .      ..-*+:.. -.*@.-..  |
+|                   \/                                                                                         *##@-                ..      ..::.###:    |
+\*======================================================================================================================================================*/
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,6 +33,7 @@ namespace JTaskBar
         public FormTaskBar()
         {
             InitializeComponent();
+            WinHook = new WindowHooks(this);
 
             DGV_Apps.AutoGenerateColumns = false;
 
@@ -137,49 +138,13 @@ namespace JTaskBar
             }
         }
 
-        private IntPtr lastFullscreenWindow = IntPtr.Zero;
+        public WindowHooks WinHook { get; private set; }
 
-        private IntPtr hookHandle = IntPtr.Zero;
+        private IntPtr lastFullscreenWindow { get; set; } = IntPtr.Zero;
 
-        private Win.WinEventDelegate? winEventProc;
+        private ToolStripDropDown? calendarPopup { get; set; }
 
-        private ToolStripDropDown? calendarPopup;
-
-        public void StartWindowAlertHook()
-        {
-            winEventProc = new Win.WinEventDelegate(WinEventCallback);
-            hookHandle = Win.SetWinEventHook(
-                Win.EVENT_OBJECT_NAMECHANGE, Win.EVENT_OBJECT_NAMECHANGE,
-                IntPtr.Zero, winEventProc, 0, 0, Win.WINEVENT_OUTOFCONTEXT);
-        }
-
-        public void StopWindowAlertHook()
-        {
-            if (hookHandle != IntPtr.Zero)
-            {
-                Win.UnhookWinEvent(hookHandle);
-                hookHandle = IntPtr.Zero;
-            }
-        }
-
-        private void WinEventCallback(IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
-                        int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
-        {
-            if (idObject == Win.OBJID_WINDOW && hwnd != IntPtr.Zero)
-            {
-                //uncomment if filtering alerts to specific screens
-                //var screen = Screen.FromHandle(hwnd);
-                //if (AssignedScreen != null && screen.DeviceName == AssignedScreen.DeviceName)
-                //{
-                    NotifyWindowAlert(hwnd);
-                //}
-            }
-        }
-
-        public static bool IsWindowOnScreen(IntPtr hwnd, Screen screen)
-        {
-            return Screen.FromHandle(hwnd).DeviceName == screen.DeviceName;
-        }
+        
 
 
         private void FormTaskBar_Load(object sender, EventArgs e)
@@ -187,13 +152,13 @@ namespace JTaskBar
             //RegisterAppBar();
             UpdateAppBarPosition(this, DockSide, BarWidth);
             Timer_Clock.Start();
-            StartWindowAlertHook();
+            WinHook.StartWindowAlertHook();
 
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            StopWindowAlertHook();
+            WinHook.StopWindowAlertHook();
 
             UnsetAppBar(this);
 
@@ -262,6 +227,9 @@ namespace JTaskBar
 
                     Menu_WindowBtn.Show(screenPoint);
                 }
+            } else
+            {
+                //shortened menu with Task manager and other shortcuts
             }
         }
 
@@ -385,7 +353,7 @@ namespace JTaskBar
 
         }
 
-        private List<IntPtr> minimizedWindows = new();
+        //private List<IntPtr> minimizedWindows = new();
 
         /// <summary>
         /// Minimize all windows and restore on second click.
@@ -394,8 +362,8 @@ namespace JTaskBar
         /// <param name="e"></param>
         private void Btn_Desktop_Click(object sender, EventArgs e)
         {
-            if (minimizedWindows.Count == 0)
-            {
+            //if (minimizedWindows.Count == 0)
+            //{
                 var WinItems = DGVWins.List as BindingList<WindowInfo>;
                 // Minimize all visible windows
                 foreach (var win in WinItems)
@@ -403,10 +371,10 @@ namespace JTaskBar
                     if (!Win.IsIconic(win.Handle))
                     {
                         Win.ShowWindow(win.Handle, Win.SW_MINIMIZE);
-                        minimizedWindows.Add(win.Handle);
+                        //minimizedWindows.Add(win.Handle);
                     }
                 }
-            }
+            //}
             //this caused BSOD when restoring a large number of windows. - turned off for now.
             //else
             //{
@@ -532,23 +500,7 @@ namespace JTaskBar
 
         }
 
-        public void NotifyWindowAlert(IntPtr hwnd)
-        {
-            var row = DGV_Apps.Rows.Cast<DataGridViewRow>()
-                .FirstOrDefault(r => (r.DataBoundItem as WindowInfo)?.Handle == hwnd);
-            if (row != null)
-            {
-                Task.Run(async () =>
-                {
-                    for (int i = 0; i < 6; i++)
-                    {
-                        Invoke(() => row.DefaultCellStyle.BackColor = (i % 2 == 0) ? Color.DarkRed : Color.Black);
-                        await Task.Delay(250);
-                    }
-                    Invoke(() => row.DefaultCellStyle.BackColor = Color.Black);
-                });
-            }
-        }
+        
 
 
         private void reDrawToolStripMenuItem_Click(object sender, EventArgs e)
