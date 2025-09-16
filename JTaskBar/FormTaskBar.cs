@@ -89,11 +89,11 @@ namespace JTaskBar
             //});
 
             //DGV_Apps.BackgroundColor = Color.Black;
-            DGV_Apps.DefaultCellStyle.BackColor = Color.Black;
+            DGV_Apps.DefaultCellStyle.BackColor = backGroundColor;
             DGV_Apps.DefaultCellStyle.ForeColor = Color.White;
             //DGV_Apps.DefaultCellStyle.SelectionBackColor = Color.DarkSlateGray;
             DGV_Apps.DefaultCellStyle.SelectionForeColor = Color.White;
-            DGV_Apps.GridColor = Color.Black;
+            DGV_Apps.GridColor = backGroundColor;
             DGV_Apps.EnableHeadersVisualStyles = false;
 
 
@@ -149,6 +149,17 @@ namespace JTaskBar
                 UpdateAppBarPosition(this, dockSide, BarWidth);
             }
         }
+
+        private Color backGroundColor = Color.Black;
+
+        public Color BackGroundColor
+        {
+            get { return backGroundColor; }
+            set {
+                this.BackColor = value;
+                backGroundColor = value; }
+        }
+
 
         public WindowHooks WinHook { get; private set; }
 
@@ -341,6 +352,7 @@ namespace JTaskBar
                 int index = windowList.IndexOf(focused);
                 DGV_Apps.Rows[index].Selected = true;
                 DGV_Apps.FirstDisplayedScrollingRowIndex = index;
+                DGV_Apps.Rows[index].DefaultCellStyle.BackColor = BackGroundColor;
             }
 
         }

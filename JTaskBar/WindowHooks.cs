@@ -86,7 +86,7 @@ namespace JTaskBar
                 {
                     for (int i = 0; i < 20; i++)
                     {
-                        TaskBar.Invoke(() => row.DefaultCellStyle.BackColor = (i % 2 == 0) ? Color.DarkRed : Color.Black);
+                        TaskBar.Invoke(() => row.DefaultCellStyle.BackColor = (i % 2 == 0) ? Color.DarkRed : TaskBar.BackGroundColor);
                         await Task.Delay(250);
                     }
                     TaskBar.Invoke(() => row.DefaultCellStyle.BackColor = Color.DarkRed);
