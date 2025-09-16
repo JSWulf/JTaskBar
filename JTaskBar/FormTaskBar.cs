@@ -51,39 +51,42 @@ namespace JTaskBar
 
             //DGV_Apps.AutoGenerateColumns = false;
 
-            DGV_Apps.Columns.Add(new DataGridViewImageColumn
-            {
-                Name = "Icon",
-                HeaderText = "",
-                Width = 16,
-                ImageLayout = DataGridViewImageCellLayout.Zoom,
-                DataPropertyName = "IconIm"
-            });
-            //DGV_Apps.Columns.Add("Title", "Window Title");
-            DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Title",
-                HeaderText = "Window Title",
-                DataPropertyName = "Title",
-                Width = this.Width// - 15
-            });
+            Col_Icon.ImageLayout = DataGridViewImageCellLayout.Zoom;
+            Col_Title.Width = this.Width;
 
-            //DGV_Apps.Columns.Add("Process", "Process");
-            DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "ProcessName",
-                HeaderText = "Process",
-                DataPropertyName = "ProcessName",
-                Visible = false
-            });
+            //DGV_Apps.Columns.Add(new DataGridViewImageColumn
+            //{
+            //    Name = "Icon",
+            //    HeaderText = "",
+            //    Width = 16,
+            //    ImageLayout = DataGridViewImageCellLayout.Zoom,
+            //    DataPropertyName = "IconIm"
+            //});
+            ////DGV_Apps.Columns.Add("Title", "Window Title");
+            //DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
+            //{
+            //    Name = "Title",
+            //    HeaderText = "Window Title",
+            //    DataPropertyName = "Title",
+            //    Width = this.Width// - 15
+            //});
 
-            DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "ProcessID",
-                HeaderText = "Process ID",
-                DataPropertyName = "ProcessID",
-                Visible = false
-            });
+            ////DGV_Apps.Columns.Add("Process", "Process");
+            //DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
+            //{
+            //    Name = "ProcessName",
+            //    HeaderText = "Process",
+            //    DataPropertyName = "ProcessName",
+            //    Visible = false
+            //});
+
+            //DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
+            //{
+            //    Name = "ProcessID",
+            //    HeaderText = "Process ID",
+            //    DataPropertyName = "ProcessID",
+            //    Visible = false
+            //});
 
             //DGV_Apps.BackgroundColor = Color.Black;
             DGV_Apps.DefaultCellStyle.BackColor = Color.Black;
@@ -100,6 +103,15 @@ namespace JTaskBar
             DGV_Apps.CellClick += DGV_Apps_CellClick;
             DGV_Apps.CellMouseDown += DGV_Apps_MouseDown;
             DGV_Apps.MouseMove += DGV_Apps_MouseMove;
+            DGV_Apps.DataError += DGV_Apps_DataError;
+        }
+
+        private void DGV_Apps_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            Console.WriteLine(e.ToString());
+            Console.WriteLine(e.Context);
+            Console.WriteLine(e.RowIndex);
+            Console.WriteLine(e.ColumnIndex);
         }
 
         public BindingSource DGVWins { get; set; } = new BindingSource();
@@ -121,7 +133,7 @@ namespace JTaskBar
                 barWidth = value;
                 this.Width = value;
                 //LiVw_Apps.Columns[Window.Name].Width = this.Width - 18;
-                DGV_Apps.Columns["Title"].Width = this.Width - 20;
+                DGV_Apps.Columns[Col_Title.Name].Width = this.Width - 20;
                 UpdateAppBarPosition(this, DockSide, barWidth);
             }
         }

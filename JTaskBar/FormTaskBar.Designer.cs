@@ -67,6 +67,8 @@ namespace JTaskBar
             MBtn_TskMn = new ToolStripMenuItem();
             toolStripMenuItem4 = new ToolStripSeparator();
             MBtn_Close = new ToolStripMenuItem();
+            Col_Icon = new DataGridViewImageColumn();
+            Col_Title = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)DGV_Apps).BeginInit();
             Menu_Main.SuspendLayout();
@@ -145,6 +147,7 @@ namespace JTaskBar
             DGV_Apps.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
             DGV_Apps.BackgroundColor = Color.Black;
             DGV_Apps.ColumnHeadersVisible = false;
+            DGV_Apps.Columns.AddRange(new DataGridViewColumn[] { Col_Icon, Col_Title });
             DGV_Apps.Dock = DockStyle.Fill;
             DGV_Apps.Location = new Point(3, 44);
             DGV_Apps.MultiSelect = false;
@@ -245,6 +248,21 @@ namespace JTaskBar
             MBtn_Close.Text = "Close";
             MBtn_Close.Click += MBtn_Close_Click;
             // 
+            // Col_Icon
+            // 
+            Col_Icon.DataPropertyName = "IconIm";
+            Col_Icon.HeaderText = "Icon";
+            Col_Icon.Name = "Col_Icon";
+            Col_Icon.ReadOnly = true;
+            Col_Icon.Width = 16;
+            // 
+            // Col_Title
+            // 
+            Col_Title.DataPropertyName = "Title";
+            Col_Title.HeaderText = "Window Title";
+            Col_Title.Name = "Col_Title";
+            Col_Title.ReadOnly = true;
+            // 
             // FormTaskBar
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -290,6 +308,8 @@ namespace JTaskBar
         private ToolStripMenuItem Menu_LRToggle;
         private ToolStripSeparator toolStripMenuItem2;
         public DataGridView DGV_Apps;
+        private DataGridViewImageColumn Col_Icon;
+        private DataGridViewTextBoxColumn Col_Title;
     }
 }
 

@@ -84,12 +84,12 @@ namespace JTaskBar
             {
                 Task.Run(async () =>
                 {
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 20; i++)
                     {
                         TaskBar.Invoke(() => row.DefaultCellStyle.BackColor = (i % 2 == 0) ? Color.DarkRed : Color.Black);
                         await Task.Delay(250);
                     }
-                    TaskBar.Invoke(() => row.DefaultCellStyle.BackColor = Color.Black);
+                    TaskBar.Invoke(() => row.DefaultCellStyle.BackColor = Color.DarkRed);
                 });
             }
         }
