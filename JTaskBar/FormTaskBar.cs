@@ -36,6 +36,7 @@ namespace JTaskBar
             InitializeComponent();
 
             TBSettings = new Settings(); //useing default JTaskBar.conf
+            TBSettings.Reload();
             ApplySettings();
 
             WinHook = new WindowHooks(this);

@@ -150,6 +150,71 @@ namespace JTaskBar
             //{ "LUID+targetID", new MonSetting() }
         };
 
+
+        public static Settings Load(string path)
+        {
+            using var fs = File.OpenRead(path);
+            return JsonSerializer.Deserialize<Settings>(fs, jsonOptions) ?? new Settings();
+        }
+
+        public static Settings LoadOrCreate(string path)
+        {
+            if (!File.Exists(path))
+            {
+                var s = new Settings { ConfigFile = path };
+                s.Save(); // writes using jsonOptions
+                return s;
+            }
+
+            try
+            {
+                var s = Load(path);
+                s.ConfigFile = path; // keep file path tracked
+                return s;
+            }
+            catch
+            {
+                //preserve the bad file and regen defaults
+                try { 
+                    File.Move(path, path + ".bad", overwrite: true); 
+                } catch 
+                {
+                    throw new Exception($"Bad configuration file - delete {path} and try again.");
+                }
+                var s = new Settings { ConfigFile = path };
+                s.Save();
+                return s;
+            }
+        }
+
+        public void Save()
+        {
+            var json = JsonSerializer.Serialize(this, jsonOptions);
+            File.WriteAllText(ConfigFile, json);
+        }
+
+        public void Reload()
+        {
+            CopyFrom(Load(ConfigFile));
+        }
+
+        public void CopyFrom(Settings s)
+        {
+            
+            BarWidth = s.BarWidth;
+            DockSideSel = s.DockSideSel;
+            MenuFolders = new Dictionary<string, string>(s.MenuFolders, StringComparer.OrdinalIgnoreCase);
+            ClockFormat = s.ClockFormat;
+            ShowISOWeek = s.ShowISOWeek;
+            Opacity = s.Opacity;
+            BackGroundColorHex = s.BackGroundColorHex; 
+            ForeGroundColorHex = s.ForeGroundColorHex;
+            PrimaryMonitor = s.PrimaryMonitor;
+            MultiMonitor = s.MultiMonitor;
+            Monitors = new Dictionary<string, MonSetting>(s.Monitors); 
+        }
+
+
     }
 
     public class MonSetting
@@ -164,4 +229,5 @@ namespace JTaskBar
 
         //potential coloring options
     }
+
 }
