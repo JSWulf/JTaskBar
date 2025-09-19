@@ -53,7 +53,7 @@ namespace JTaskBar
 
                 if (!File.Exists(configFile))
                 {
-                    File.WriteAllText(configFile, JsonSerializer.Serialize(this, JsonSerializerOptions.Default));
+                    File.WriteAllText(configFile, JsonSerializer.Serialize(this, jsonOptions));
                 }
             }
         }
@@ -71,7 +71,7 @@ namespace JTaskBar
         public string ClockFormat { get; set; } = "HH:mm \ndddd\nyyyy-MM-dd";
         public bool ShowISOWeek { get; set; } = true;
 
-        public double Opacity { get; set; } = 0;
+        public double Opacity { get; set; } = 1;
 
         #region Background Color property
         private string backGroundColorHex = "#000000";
@@ -138,11 +138,13 @@ namespace JTaskBar
         }
         #endregion
 
+        public string PrimaryMonitor { get; set; } = "";
+
         public bool MultiMonitor { get; set; } = false;
 
         public Dictionary<string, MonSetting> Monitors { get; set; } = new Dictionary<string, MonSetting>()
         {
-            { "LUID+targetID", new MonSetting() }
+            //{ "LUID+targetID", new MonSetting() }
         };
 
     }

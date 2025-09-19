@@ -143,7 +143,7 @@ namespace JTaskBar
                 backGroundColor = value; }
         }
 
-        private double taskBarOpacity = 0.0;
+        private double taskBarOpacity = 1.0;
 
         public double TaskBarOpacity
         {
