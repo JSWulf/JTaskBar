@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using static JTaskBar.AppBar;
 using static JTaskBar.Win;
+using JLIB3;
 
 namespace JTaskBar
 {
@@ -33,16 +34,20 @@ namespace JTaskBar
         public FormTaskBar()
         {
             InitializeComponent();
+
+            TBSettings = new Settings(); //useing default JTaskBar.conf
+            ApplySettings();
+
             WinHook = new WindowHooks(this);
 
             DGV_Apps.AutoGenerateColumns = false;
 
-            TT_Win.InitialDelay = 2000;
+            TT_Win.InitialDelay = 500;
             TT_Win.ReshowDelay = 500;
             TT_Win.AutoPopDelay = 5000;
             TT_Win.ShowAlways = false;
 
-            icons.ImageSize = new Size(16, 16);
+            //icons.ImageSize = new Size(16, 16);
 
             DGVWins.DataSource = new BindingList<WindowInfo>();
             //DGVWins.DataSource = typeof(WindowInfo);
@@ -91,17 +96,20 @@ namespace JTaskBar
 
         private void DGV_Apps_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            Console.WriteLine(e.ToString());
-            Console.WriteLine(e.Context);
-            Console.WriteLine(e.RowIndex);
-            Console.WriteLine(e.ColumnIndex);
+            Log.Add(e.ToString());
+            Log.Add(e.Context);
+            Log.Add(e.RowIndex);
+            Log.Add(e.ColumnIndex);
         }
+
+        public JLog Log { get; set; } = new JLog("JTaskBar.log");
+        public Settings TBSettings { get; set; }
 
         public BindingSource DGVWins { get; set; } = new BindingSource();
         //public BackgroundWorker ClockWorker { get; set; } = new BackgroundWorker();
         //public List<WindowInfo> WinItems { get; private set; } = new List<WindowInfo>();
 
-        public ImageList icons { get; private set; } = new ImageList();
+        //public ImageList icons { get; private set; } = new ImageList();
 
         //public static FormTaskBar? Instance { get; private set; }
         public Screen AssignedScreen { get; set; }
@@ -140,7 +148,20 @@ namespace JTaskBar
             get { return backGroundColor; }
             set {
                 this.BackColor = value;
+                DGV_Apps.BackgroundColor = value;
                 backGroundColor = value; }
+        }
+
+        private Color foreGroundColor = Color.Black;
+
+        public Color ForeGroundColor
+        {
+            get { return foreGroundColor; }
+            set
+            {
+                DGV_Apps.DefaultCellStyle.ForeColor = value;
+                foreGroundColor = value;
+            }
         }
 
         private double taskBarOpacity = 1.0;
@@ -157,6 +178,9 @@ namespace JTaskBar
                 this.Opacity = value;
             }
         }
+
+        public string ClockFormat { get; set; } = "HH:mm \ndddd\nyyyy-MM-dd";
+        public bool ShowISOWeek { get; set; } = true;
 
 
         public WindowHooks WinHook { get; private set; }
@@ -186,10 +210,32 @@ namespace JTaskBar
             base.OnFormClosing(e);
         }
 
+        public void ApplySettings()
+        {
+            if (TBSettings == null)
+            {
+                return;
+            }
+
+            BarWidth = TBSettings.BarWidth;
+            DockSideSel = TBSettings.DockSideSel;
+            BackGroundColor = TBSettings.BackGroundColor;
+            ForeGroundColor = TBSettings.ForeGroundColor;
+            TaskBarOpacity = TBSettings.Opacity;
+
+            ClockFormat = TBSettings.ClockFormat;
+            ShowISOWeek = TBSettings.ShowISOWeek;
+
+
+            //set menu folders
+
+            //if multimonitor apply to other taskbars
+        }
+
 
         private void Timer_Clock_Tick(object sender, EventArgs e)
         {
-            Lab_Clock.Text = DateTime.Now.ToString("HH:mm \ndddd\nyyyy-MM-dd") + "\n" + DateTime.Now.ISOWorkWeek();
+            Lab_Clock.Text = DateTime.Now.ToString(ClockFormat) + (ShowISOWeek ? "\n" + DateTime.Now.ISOWorkWeek() : "") ;
             SetButtons();
 
 

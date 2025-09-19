@@ -29,7 +29,10 @@ namespace JTaskBar
 {
     public class Settings
     {
-        public Settings() { }
+        public Settings() 
+        {
+            ConfigFile = configFile;
+        }
         public Settings(string file) 
         {
             ConfigFile = file;
