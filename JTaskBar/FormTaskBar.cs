@@ -43,11 +43,6 @@ namespace JTaskBar
 
             DGV_Apps.AutoGenerateColumns = false;
 
-            TT_Win.InitialDelay = 500;
-            TT_Win.ReshowDelay = 500;
-            TT_Win.AutoPopDelay = 5000;
-            TT_Win.ShowAlways = false;
-
             //icons.ImageSize = new Size(16, 16);
 
             DGVWins.DataSource = new BindingList<WindowInfo>();
@@ -188,7 +183,7 @@ namespace JTaskBar
 
         private IntPtr lastFullscreenWindow { get; set; } = IntPtr.Zero;
 
-        private ToolStripDropDown? calendarPopup { get; set; }
+        private ToolStripDropDown calendarPopup { get; set; }
 
         
 
@@ -301,7 +296,7 @@ namespace JTaskBar
             }
         }
 
-        private DataGridViewRow? lastTooltipRow = null;
+        private DataGridViewRow lastTooltipRow = null;
 
         private void DGV_Apps_MouseMove(object sender, MouseEventArgs e)
         {

@@ -52,6 +52,8 @@ namespace JTaskBar
             Btn_Desktop = new Button();
             Lab_Clock = new Label();
             DGV_Apps = new DataGridView();
+            Col_Icon = new DataGridViewImageColumn();
+            Col_Title = new DataGridViewTextBoxColumn();
             Menu_Main = new ContextMenuStrip(components);
             Menu_Redraw = new ToolStripMenuItem();
             Menu_LRToggle = new ToolStripMenuItem();
@@ -67,8 +69,6 @@ namespace JTaskBar
             MBtn_TskMn = new ToolStripMenuItem();
             toolStripMenuItem4 = new ToolStripSeparator();
             MBtn_Close = new ToolStripMenuItem();
-            Col_Icon = new DataGridViewImageColumn();
-            Col_Title = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)DGV_Apps).BeginInit();
             Menu_Main.SuspendLayout();
@@ -159,6 +159,21 @@ namespace JTaskBar
             DGV_Apps.Size = new Size(93, 1063);
             DGV_Apps.TabIndex = 4;
             // 
+            // Col_Icon
+            // 
+            Col_Icon.DataPropertyName = "IconIm";
+            Col_Icon.HeaderText = "Icon";
+            Col_Icon.Name = "Col_Icon";
+            Col_Icon.ReadOnly = true;
+            Col_Icon.Width = 16;
+            // 
+            // Col_Title
+            // 
+            Col_Title.DataPropertyName = "Title";
+            Col_Title.HeaderText = "Window Title";
+            Col_Title.Name = "Col_Title";
+            Col_Title.ReadOnly = true;
+            // 
             // Menu_Main
             // 
             Menu_Main.Items.AddRange(new ToolStripItem[] { Menu_Redraw, Menu_LRToggle, toolStripMenuItem2, Menu_Exit });
@@ -196,6 +211,10 @@ namespace JTaskBar
             Timer_Clock.Enabled = true;
             Timer_Clock.Interval = 1000;
             Timer_Clock.Tick += Timer_Clock_Tick;
+            // 
+            // TT_Win
+            // 
+            TT_Win.ShowAlways = true;
             // 
             // Menu_WindowBtn
             // 
@@ -247,21 +266,6 @@ namespace JTaskBar
             MBtn_Close.Size = new Size(178, 22);
             MBtn_Close.Text = "Close";
             MBtn_Close.Click += MBtn_Close_Click;
-            // 
-            // Col_Icon
-            // 
-            Col_Icon.DataPropertyName = "IconIm";
-            Col_Icon.HeaderText = "Icon";
-            Col_Icon.Name = "Col_Icon";
-            Col_Icon.ReadOnly = true;
-            Col_Icon.Width = 16;
-            // 
-            // Col_Title
-            // 
-            Col_Title.DataPropertyName = "Title";
-            Col_Title.HeaderText = "Window Title";
-            Col_Title.Name = "Col_Title";
-            Col_Title.ReadOnly = true;
             // 
             // FormTaskBar
             // 
