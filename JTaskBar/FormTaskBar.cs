@@ -54,24 +54,7 @@ namespace JTaskBar
             Col_Icon.ImageLayout = DataGridViewImageCellLayout.Zoom;
             Col_Title.Width = this.Width;
 
-            //DGV_Apps.Columns.Add(new DataGridViewImageColumn
-            //{
-            //    Name = "Icon",
-            //    HeaderText = "",
-            //    Width = 16,
-            //    ImageLayout = DataGridViewImageCellLayout.Zoom,
-            //    DataPropertyName = "IconIm"
-            //});
-            ////DGV_Apps.Columns.Add("Title", "Window Title");
-            //DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
-            //{
-            //    Name = "Title",
-            //    HeaderText = "Window Title",
-            //    DataPropertyName = "Title",
-            //    Width = this.Width// - 15
-            //});
-
-            ////DGV_Apps.Columns.Add("Process", "Process");
+            //Left in case it is needed in the future
             //DGV_Apps.Columns.Add(new DataGridViewTextBoxColumn
             //{
             //    Name = "ProcessName",
@@ -158,6 +141,21 @@ namespace JTaskBar
             set {
                 this.BackColor = value;
                 backGroundColor = value; }
+        }
+
+        private double taskBarOpacity = 0.0;
+
+        public double TaskBarOpacity
+        {
+            get { return taskBarOpacity; }
+            set {
+                if (value < 0.0 || value > 1.0)
+                {
+                    MessageBox.Show("Invalid Opacity - must be between 0.0 and 1.0;");
+                }
+                taskBarOpacity = value;
+                this.Opacity = value;
+            }
         }
 
 
