@@ -29,11 +29,17 @@ namespace JTaskBar
 {
     public static class AppBar
     {
+        public enum DockSide : uint
+        {
+            Left = 0,
+            Right = 2
+        }
+
         public const int ABM_NEW = 0x00000000;
         public const int ABM_REMOVE = 0x00000001;
         public const int ABM_SETPOS = 0x00000003;
-        public const int ABE_LEFT = 0;
-        public const int ABE_RIGHT = 2;
+        //public const int ABE_LEFT = 0;
+        //public const int ABE_RIGHT = 2;
         public const int WM_APPBARNOTIFY = 0x004B;
         public const int ABN_POSCHANGED = 0x0001;
         public const int WM_DISPLAYCHANGE = 0x007E;
@@ -46,7 +52,7 @@ namespace JTaskBar
 
         private static bool isUpdatingPosition = false;
 
-        public static void UpdateAppBarPosition(Form form, uint side, int width)
+        public static void UpdateAppBarPosition(Form form, DockSide side, int width)
         {
             if (isUpdatingPosition)
             {
@@ -66,7 +72,7 @@ namespace JTaskBar
             {
                 cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
                 hWnd = form.Handle,
-                uEdge = side,
+                uEdge = (uint)side,
                 uCallbackMessage = (uint)callbackMessageId
             };
 
@@ -84,12 +90,12 @@ namespace JTaskBar
             abd.rc.top = screen.Top;
             abd.rc.bottom = screen.Bottom;
 
-            if (side == ABE_LEFT)
+            if (side == DockSide.Left)
             {
                 abd.rc.left = screen.Left;
                 abd.rc.right = screen.Left + width;
             }
-            else if (side == ABE_RIGHT)
+            else if (side == DockSide.Right)
             {
                 abd.rc.right = screen.Right;
                 abd.rc.left = screen.Right - width;

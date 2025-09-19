@@ -117,19 +117,19 @@ namespace JTaskBar
                 this.Width = value;
                 //LiVw_Apps.Columns[Window.Name].Width = this.Width - 18;
                 DGV_Apps.Columns[Col_Title.Name].Width = this.Width - 20;
-                UpdateAppBarPosition(this, DockSide, barWidth);
+                UpdateAppBarPosition(this, DockSideSel, barWidth);
             }
         }
 
-        private uint dockSide = ABE_LEFT;
+        private DockSide dockSideSel = DockSide.Left;
 
-        public uint DockSide
+        public DockSide DockSideSel
         {
-            get { return dockSide; }
+            get { return dockSideSel; }
             set
             {
-                dockSide = value;
-                UpdateAppBarPosition(this, dockSide, BarWidth);
+                dockSideSel = value;
+                UpdateAppBarPosition(this, dockSideSel, BarWidth);
             }
         }
 
@@ -171,7 +171,7 @@ namespace JTaskBar
         private void FormTaskBar_Load(object sender, EventArgs e)
         {
             //RegisterAppBar();
-            UpdateAppBarPosition(this, DockSide, BarWidth);
+            UpdateAppBarPosition(this, DockSideSel, BarWidth);
             Timer_Clock.Start();
             WinHook.StartWindowAlertHook();
 
@@ -366,7 +366,7 @@ namespace JTaskBar
             Point buttonScreenPoint = Btn_Menu.PointToScreen(Point.Empty);
             buttonScreenPoint.Offset(0, Btn_Menu.Height);
 
-            if (dockSide == ABE_RIGHT)
+            if (dockSideSel == DockSide.Right)
             {
                 buttonScreenPoint.Offset(-Btn_Menu.Width, 0);
             }
@@ -492,7 +492,7 @@ namespace JTaskBar
                     LogMonitorConfiguration();
                     Debug.WriteLine("Change positive");
                     //UnsetAppBar(this);
-                    UpdateAppBarPosition(this, DockSide, BarWidth);
+                    UpdateAppBarPosition(this, DockSideSel, BarWidth);
                     CacheMonitorConfiguration();
                 }
             }
@@ -529,7 +529,7 @@ namespace JTaskBar
         {
             //UnsetAppBar(this);
 
-            UpdateAppBarPosition(this, DockSide, BarWidth);
+            UpdateAppBarPosition(this, DockSideSel, BarWidth);
         }
 
         private void OnEnterFullscreen(IntPtr hWnd)
@@ -548,7 +548,7 @@ namespace JTaskBar
 
         private void Menu_LRToggle_Click(object sender, EventArgs e)
         {
-            DockSide = (DockSide == ABE_LEFT) ? (uint)ABE_RIGHT : (uint)ABE_LEFT;
+            DockSideSel = (DockSideSel == DockSide.Left) ? DockSide.Right : DockSide.Left;
             
         }
 

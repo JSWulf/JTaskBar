@@ -60,15 +60,7 @@ namespace JTaskBar
 
         public int BarWidth { get; set; } = 101;
 
-        //change to enum:
-        //public enum DockSideEnum : uint
-        //{
-        //    Left = 0,
-        //    Top = 1,
-        //    Right = 2,
-        //    Bottom = 3
-        //}
-        public uint DockSide { get; set; } = AppBar.ABE_LEFT;
+        public AppBar.DockSide DockSideSel { get; set; } = AppBar.DockSide.Left;
 
         public Dictionary<string, string> MenuFolders { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -148,13 +140,21 @@ namespace JTaskBar
 
         public bool MultiMonitor { get; set; } = false;
 
-        public Dictionary<string, string> Monitors { get; set; }
+        public Dictionary<string, MonSetting> Monitors { get; set; } = new Dictionary<string, MonSetting>()
+        {
+            { "LUID+targetID", new MonSetting() }
+        };
 
     }
 
     public class MonSetting
     {
-        public uint DockSide { get; set; } = AppBar.ABE_LEFT;
+        public MonSetting(AppBar.DockSide dockSide = AppBar.DockSide.Left, int barWidth = 101)
+        {
+            DockSideSel = dockSide;
+            BarWidth = barWidth;
+        }
+        public AppBar.DockSide DockSideSel { get; set; } = AppBar.DockSide.Left;
         public int BarWidth { get; set; } = 101;
 
         //potential coloring options
