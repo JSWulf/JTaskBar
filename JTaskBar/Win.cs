@@ -55,6 +55,8 @@ namespace JTaskBar
         [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hWnd, out Win.RECT lpRect);
         [DllImport("user32.dll")] public static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
         [DllImport("user32.dll")] public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+        [DllImport("user32.dll", SetLastError = false)] public static extern IntPtr CopyIcon(IntPtr hIcon);
+        [DllImport("user32.dll", SetLastError = false)] public static extern bool DestroyIcon(IntPtr hIcon);
 
         // Constants
         public const uint EVENT_OBJECT_NAMECHANGE = 0x800C;

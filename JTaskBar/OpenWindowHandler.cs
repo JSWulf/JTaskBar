@@ -108,7 +108,7 @@ namespace JTaskBar
 
                 IntPtr parent = Win.GetParent(hWnd);
 
-                Icon icon = GetWindowIcon(hWnd);
+                Bitmap icon = GetWindowIcon(hWnd); 
 
                 windows.Add(new WindowInfo
                 {
@@ -163,7 +163,7 @@ namespace JTaskBar
         /// </summary>
         /// <param name="hWnd"></param>
         /// <returns></returns>
-        public static Icon GetWindowIcon(IntPtr hWnd)
+        public static Bitmap GetWindowIcon(IntPtr hWnd)
         {
             IntPtr hIcon = SendMessage(hWnd, WM_GETICON, (IntPtr)ICON_SMALL, IntPtr.Zero);
             if (hIcon == IntPtr.Zero)
@@ -173,28 +173,39 @@ namespace JTaskBar
 
             if (hIcon != IntPtr.Zero)
             {
-                return Icon.FromHandle(hIcon);
+                //Make our own copy 
+                IntPtr hCopy = Win.CopyIcon(hIcon);
+                if (hCopy != IntPtr.Zero)
+                {
+                    using (var tmp = Icon.FromHandle(hCopy))
+                    {
+                        Bitmap bmp = tmp.ToBitmap(); //copy
+                        DestroyIcon(hCopy);          //free duplicate HICON
+                        return bmp;
+                    }
+                }
             }
 
-            // Fallback: try to get icon from executable
+            //Fallback: try to get icon from executable
             try
             {
-                Win.GetWindowThreadProcessId(hWnd, out uint pid);
-                var process = Process.GetProcessById((int)pid);
-                string exePath = process.MainModule?.FileName;
-
+                GetWindowThreadProcessId(hWnd, out uint pid);
+                using var proc = Process.GetProcessById((int)pid);
+                string exePath = proc.MainModule?.FileName;
                 if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
                 {
-                    return Icon.ExtractAssociatedIcon(exePath) ?? SystemIcons.Application;
+                    using var ico = Icon.ExtractAssociatedIcon(exePath);
+                    if (ico != null) return ico.ToBitmap();
                 }
+
             }
             catch (Exception ex)
             {
                 // Access denied or other issue
-                Console.WriteLine($"Icon error: {ex.ToString()}");
+                FormTaskBar.Log.Add($"Icon error: {ex.ToString()}");
             }
 
-            return SystemIcons.Application;
+            return SystemIcons.Application.ToBitmap();
         }
 
     }

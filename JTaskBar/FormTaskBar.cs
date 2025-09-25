@@ -53,6 +53,7 @@ namespace JTaskBar
             //DGV_Apps.AutoGenerateColumns = false;
 
             Col_Icon.ImageLayout = DataGridViewImageCellLayout.Zoom;
+            //Col_Icon.ValuesAreIcons = true; uncomment if switching back to the Icon type
             Col_Title.Width = this.Width;
 
             //Left in case it is needed in the future
@@ -98,7 +99,7 @@ namespace JTaskBar
             Log.Add(e.ColumnIndex);
         }
 
-        public JLog Log { get; set; } = new JLog("JTaskBar.log");
+        public static JLog Log { get; set; } = new JLog("JTaskBar.log");
         public Settings TBSettings { get; set; }
 
         public BindingSource DGVWins { get; set; } = new BindingSource();
