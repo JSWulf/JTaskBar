@@ -227,6 +227,8 @@ namespace JTaskBar
             //set menu folders
 
             //if multimonitor apply to other taskbars
+
+            TBSettings.Save();
         }
 
 
